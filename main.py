@@ -105,174 +105,184 @@ def main():
 
     print("Initialize dataset {}".format(args.dataset))
 
-    dataset = h5py.File(args.dataset, 'r')
-    # train_dataset= h5py.File("combined.h5","r")
+    for i in range(0,4):
+
+        dataset = h5py.File(args.dataset, 'r')
+        train_dataset= h5py.File("combined-all.h5","r")
+
+        keys= list(train_dataset.keys())
+        # num_videos = len(dataset.keys())
+        num_videos= len(train_dataset.keys())
+        splits = read_json(args.split)
+        assert args.split_id < len(splits), "split_id (got {}) exceeds {}".format(args.split_id, len(splits))
+        split = splits[args.split_id]
+        # train_keys = split['train_keys']
+        if i ==0:
+            train_keys= keys[5:-1]
+            train_keys.append(keys[-1])
+            test_keys= keys[0:5]
+        else:
+            train_keys_1=keys[0:(i*5)]+keys[((i+1)*5):-1]
+            train_keys.append(keys[-1])
+            test_keys= keys[(i*5):((i+1)*5)]
+        train_keys= list(train_dataset.keys())
+        test_keys = split['test_keys']
+        print("# total videos {}. # train videos {}. # test videos {}".format(num_videos, len(train_keys), len(test_keys)))
+
+        print("Initialize model")
+        model = DSN(in_dim=args.input_dim, hid_dim=args.hidden_dim, num_layers=args.num_layers, cell=args.rnn_cell)
+        # my-change
+        # model = TransformerModel(ntokens, emsize, nhead, nhid, nlayers, dropout=dropout)
+        print("Model size: {:.5f}M".format(sum(p.numel() for p in model.parameters())/1000000.0))
+
+        optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+        if args.stepsize > 0:
+            scheduler = lr_scheduler.StepLR(optimizer, step_size=args.stepsize, gamma=args.gamma)
+
+        if args.resume:
+            print("Loading checkpoint from '{}'".format(args.resume))
+            checkpoint = torch.load(args.resume)
+            model.load_state_dict(checkpoint)
+        else:
+            start_epoch = 0
+
+        if use_gpu:
+            # model = nn.DataParallel(model).cuda()
+            S_D= S_D.to(device)
+            model=model.to(device)
+
+        if args.evaluate:
+            print("Evaluate only")
+            evaluate(model, dataset, test_keys, use_gpu)
+            return
+
+        print("==> Start training")
+        start_time = time.time()
+        model.train()
+        baselines = {key: 0. for key in train_keys} # baseline rewards for videos
+        reward_writers = {key: [] for key in train_keys} # record reward changes for each video
+        reward_writers_nll = {key: [] for key in train_keys}
+        activation = nn.Softmax(dim=1)
+        epis_reward_nll=[]
+        # loss = nn.NLLLoss()
+        loss= nn.CrossEntropyLoss()
+        label= torch.full((1,), 1, dtype=torch.long).to(device)
+        save_seq=None
+        count=0
+        # for epoch in range(start_epoch, args.max_epoch):
+        for epoch in range(start_epoch, 1000):
+
+            idxs = np.arange(len(train_keys))
+            np.random.shuffle(idxs) # shuffle indices
 
 
-    # num_videos = len(dataset.keys())
-    num_videos= len(train_dataset.keys())
-    splits = read_json(args.split)
-    assert args.split_id < len(splits), "split_id (got {}) exceeds {}".format(args.split_id, len(splits))
-    split = splits[args.split_id]
-    # train_keys = split['train_keys']
-    train_keys= list(train_dataset.keys())
-    test_keys = split['test_keys']
-    print("# total videos {}. # train videos {}. # test videos {}".format(num_videos, len(train_keys), len(test_keys)))
+            for idx in idxs:
+                key = train_keys[idx]
+                # seq = dataset[key]['features'][...] # sequence of features, (seq_len, dim)
 
-    print("Initialize model")
-    model = DSN(in_dim=args.input_dim, hid_dim=args.hidden_dim, num_layers=args.num_layers, cell=args.rnn_cell)
-    # my-change
-    # model = TransformerModel(ntokens, emsize, nhead, nhid, nlayers, dropout=dropout)
-    print("Model size: {:.5f}M".format(sum(p.numel() for p in model.parameters())/1000000.0))
+                seq = train_dataset[key]['features'][...] # sequence of features, (seq_len, dim)
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
-    if args.stepsize > 0:
-        scheduler = lr_scheduler.StepLR(optimizer, step_size=args.stepsize, gamma=args.gamma)
+                seq = torch.from_numpy(seq).unsqueeze(0) # input shape (1, seq_len, dim)
 
-    if args.resume:
-        print("Loading checkpoint from '{}'".format(args.resume))
-        checkpoint = torch.load(args.resume)
-        model.load_state_dict(checkpoint)
-    else:
-        start_epoch = 0
+                if use_gpu: seq = seq.cuda()
+                probs = model(seq) # output shape (1, seq_len, 1)
 
-    if use_gpu:
-        # model = nn.DataParallel(model).cuda()
-        S_D= S_D.to(device)
-        model=model.to(device)
 
-    if args.evaluate:
-        print("Evaluate only")
+                cost = args.beta * (probs.mean() - 0.5)**2 # minimize summary length penalty term [Eq.11]
+                m = Bernoulli(probs)
+                epis_rewards = []
+                for _ in range(args.num_episode):
+                    actions = m.sample()
+                    log_probs = m.log_prob(actions)
+
+                    if count==0:
+
+                        pick_idxs = actions.squeeze().nonzero().squeeze()
+                        save_seq=seq[:,pick_idxs,:]
+                        count=1
+
+                    reward, nll = compute_reward(seq, actions,S_D, loss=loss, label=label, activation=activation ,use_gpu=use_gpu, device=device, save_seq=save_seq)
+
+                    expected_reward = log_probs.mean() * (reward - baselines[key])
+                    cost -= expected_reward # minimize negative expected reward
+                    epis_rewards.append(reward.item())
+                    epis_reward_nll.append(nll.item())
+
+                optimizer.zero_grad()
+                cost.backward()
+                torch.nn.utils.clip_grad_norm_(model.parameters(), 5.0)
+                optimizer.step()
+                baselines[key] = 0.9 * baselines[key] + 0.1 * np.mean(epis_rewards) # update baseline reward via moving average
+                reward_writers[key].append(np.mean(epis_rewards))
+                reward_writers_nll[key].append(np.mean(epis_reward_nll))
+            if epoch%200==0:
+                evaluate_save(model, dataset, test_keys, use_gpu)
+            epoch_reward = np.mean([reward_writers[key][epoch] for key in train_keys])
+            epoch_nll_reward= np.mean([reward_writers_nll[key][epoch] for key in train_keys])
+            print("epoch {}/{}\t reward {}\t nll_reward {}\t".format(epoch+1, args.max_epoch, epoch_reward, epoch_nll_reward))
+
+        write_json(reward_writers, osp.join(args.save_dir, 'rewards.json'))
         evaluate(model, dataset, test_keys, use_gpu)
-        return
 
-    print("==> Start training")
-    start_time = time.time()
-    model.train()
-    baselines = {key: 0. for key in train_keys} # baseline rewards for videos
-    reward_writers = {key: [] for key in train_keys} # record reward changes for each video
-    reward_writers_nll = {key: [] for key in train_keys}
-    activation = nn.Softmax(dim=1)
-    epis_reward_nll=[]
-    # loss = nn.NLLLoss()
-    loss= nn.CrossEntropyLoss()
-    label= torch.full((1,), 1, dtype=torch.long).to(device)
-    save_seq=None
-    count=0
-    # for epoch in range(start_epoch, args.max_epoch):
-    for epoch in range(start_epoch, 1000):
+        elapsed = round(time.time() - start_time)
+        elapsed = str(datetime.timedelta(seconds=elapsed))
+        print("Finished. Total elapsed time (h:m:s): {}".format(elapsed))
 
-        idxs = np.arange(len(train_keys))
-        np.random.shuffle(idxs) # shuffle indices
+        # model_state_dict = model.module.state_dict() if use_gpu else model.state_dict()
+        model_state_dict = model.state_dict() if use_gpu else model.state_dict()
+        model_save_path = osp.join(args.save_dir, 'model_epoch' + str(args.max_epoch) + '.pth.tar')
+        save_checkpoint(model_state_dict, model_save_path)
+        print("Model saved to {}".format(model_save_path))
 
+        dataset.close()
 
-        for idx in idxs:
-            key = train_keys[idx]
-            # seq = dataset[key]['features'][...] # sequence of features, (seq_len, dim)
+    def evaluate(model, dataset, test_keys, use_gpu):
+        print("==> Test")
+        with torch.no_grad():
+            model.eval()
+            fms = []
+            eval_metric = 'avg' if args.metric == 'tvsum' else 'max'
 
-            seq = train_dataset[key]['features'][...] # sequence of features, (seq_len, dim)
-
-            seq = torch.from_numpy(seq).unsqueeze(0) # input shape (1, seq_len, dim)
-
-            if use_gpu: seq = seq.cuda()
-            probs = model(seq) # output shape (1, seq_len, 1)
-
-
-            cost = args.beta * (probs.mean() - 0.5)**2 # minimize summary length penalty term [Eq.11]
-            m = Bernoulli(probs)
-            epis_rewards = []
-            for _ in range(args.num_episode):
-                actions = m.sample()
-                log_probs = m.log_prob(actions)
-
-                if count==0:
-
-                    pick_idxs = actions.squeeze().nonzero().squeeze()
-                    save_seq=seq[:,pick_idxs,:]
-                    count=1
-
-                reward, nll = compute_reward(seq, actions,S_D, loss=loss, label=label, activation=activation ,use_gpu=use_gpu, device=device, save_seq=save_seq)
-
-                expected_reward = log_probs.mean() * (reward - baselines[key])
-                cost -= expected_reward # minimize negative expected reward
-                epis_rewards.append(reward.item())
-                epis_reward_nll.append(nll.item())
-
-            optimizer.zero_grad()
-            cost.backward()
-            torch.nn.utils.clip_grad_norm_(model.parameters(), 5.0)
-            optimizer.step()
-            baselines[key] = 0.9 * baselines[key] + 0.1 * np.mean(epis_rewards) # update baseline reward via moving average
-            reward_writers[key].append(np.mean(epis_rewards))
-            reward_writers_nll[key].append(np.mean(epis_reward_nll))
-        if epoch%200==0:
-            evaluate_save(model, dataset, test_keys, use_gpu)
-        epoch_reward = np.mean([reward_writers[key][epoch] for key in train_keys])
-        epoch_nll_reward= np.mean([reward_writers_nll[key][epoch] for key in train_keys])
-        print("epoch {}/{}\t reward {}\t nll_reward {}\t".format(epoch+1, args.max_epoch, epoch_reward, epoch_nll_reward))
-
-    write_json(reward_writers, osp.join(args.save_dir, 'rewards.json'))
-    evaluate(model, dataset, test_keys, use_gpu)
-
-    elapsed = round(time.time() - start_time)
-    elapsed = str(datetime.timedelta(seconds=elapsed))
-    print("Finished. Total elapsed time (h:m:s): {}".format(elapsed))
-
-    # model_state_dict = model.module.state_dict() if use_gpu else model.state_dict()
-    model_state_dict = model.state_dict() if use_gpu else model.state_dict()
-    model_save_path = osp.join(args.save_dir, 'model_epoch' + str(args.max_epoch) + '.pth.tar')
-    save_checkpoint(model_state_dict, model_save_path)
-    print("Model saved to {}".format(model_save_path))
-
-    dataset.close()
-
-def evaluate(model, dataset, test_keys, use_gpu):
-    print("==> Test")
-    with torch.no_grad():
-        model.eval()
-        fms = []
-        eval_metric = 'avg' if args.metric == 'tvsum' else 'max'
-
-        if args.verbose: table = [["No.", "Video", "F-score"]]
-
-        if args.save_results:
-            h5_res = h5py.File(osp.join(args.save_dir, 'result.h5'), 'w')
-
-        for key_idx, key in enumerate(test_keys):
-            seq = dataset[key]['features'][...]
-            seq = torch.from_numpy(seq).unsqueeze(0)
-            if use_gpu: seq = seq.cuda()
-            probs = model(seq)
-            probs = probs.data.cpu().squeeze().numpy()
-
-            cps = dataset[key]['change_points'][...]
-            num_frames = dataset[key]['n_frames'][()]
-            nfps = dataset[key]['n_frame_per_seg'][...].tolist()
-            positions = dataset[key]['picks'][...]
-            user_summary = dataset[key]['user_summary'][...]
-
-            machine_summary = vsum_tools.generate_summary(probs, cps, num_frames, nfps, positions)
-            fm, _, _ = vsum_tools.evaluate_summary(machine_summary, user_summary, eval_metric)
-            fms.append(fm)
-
-            if args.verbose:
-                table.append([key_idx+1, key, "{:.1%}".format(fm)])
+            if args.verbose: table = [["No.", "Video", "F-score"]]
 
             if args.save_results:
-                h5_res.create_dataset(key + '/score', data=probs)
-                h5_res.create_dataset(key + '/machine_summary', data=machine_summary)
-                h5_res.create_dataset(key + '/gtscore', data=dataset[key]['gtscore'][...])
-                h5_res.create_dataset(key + '/fm', data=fm)
+                h5_res = h5py.File(osp.join(args.save_dir, 'result.h5'), 'w')
 
-    if args.verbose:
-        print(tabulate(table))
+            for key_idx, key in enumerate(test_keys):
+                seq = dataset[key]['features'][...]
+                seq = torch.from_numpy(seq).unsqueeze(0)
+                if use_gpu: seq = seq.cuda()
+                probs = model(seq)
+                probs = probs.data.cpu().squeeze().numpy()
 
-    if args.save_results: h5_res.close()
+                cps = dataset[key]['change_points'][...]
+                num_frames = dataset[key]['n_frames'][()]
+                nfps = dataset[key]['n_frame_per_seg'][...].tolist()
+                positions = dataset[key]['picks'][...]
+                user_summary = dataset[key]['user_summary'][...]
 
-    mean_fm = np.mean(fms)
-    print("Average F-score {:.1%}".format(mean_fm))
+                machine_summary = vsum_tools.generate_summary(probs, cps, num_frames, nfps, positions)
+                fm, _, _ = vsum_tools.evaluate_summary(machine_summary, user_summary, eval_metric)
+                fms.append(fm)
 
-    return mean_fm
+                if args.verbose:
+                    table.append([key_idx+1, key, "{:.1%}".format(fm)])
+
+                if args.save_results:
+                    h5_res.create_dataset(key + '/score', data=probs)
+                    h5_res.create_dataset(key + '/machine_summary', data=machine_summary)
+                    h5_res.create_dataset(key + '/gtscore', data=dataset[key]['gtscore'][...])
+                    h5_res.create_dataset(key + '/fm', data=fm)
+
+        if args.verbose:
+            print(tabulate(table))
+
+        if args.save_results: h5_res.close()
+
+        mean_fm = np.mean(fms)
+        print("Average F-score {:.1%}".format(mean_fm))
+
+        return mean_fm
 
 def print_save(txt):
     f = open("results.txt","a")
