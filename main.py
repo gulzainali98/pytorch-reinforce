@@ -86,6 +86,18 @@ nlayers = 2 # the number of nn.TransformerEncoderLayer in nn.TransformerEncoder
 nhead = 2 # the number of heads in the multiheadattention models
 dropout = 0.2 # the dropout value
 
+def cmp_item(a,b):
+    if int(a.split("_")[-1])>int(b.split("_")[-1]):
+        return 1
+    elif int(a.split("_")[-1])==int(b.split("_")[-1]):
+        return 0
+    else:
+        return -1
+
+from functools import cmp_to_key
+cmp_key = cmp_to_key(cmp_item)
+
+from random import shuffle
 def main():
     global S_D
     if not args.evaluate:
@@ -105,12 +117,15 @@ def main():
 
     print("Initialize dataset {}".format(args.dataset))
 
-    for i in range(0,4):
-
+    for i in range(4,5):
         dataset = h5py.File(args.dataset, 'r')
         train_dataset= h5py.File("combined-all.h5","r")
-
         keys= list(train_dataset.keys())
+        keys.sort(key=cmp_key)
+        # dataset = h5py.File(args.dataset, 'r')
+        # train_dataset= h5py.File("combined-all.h5","r")
+
+
         # num_videos = len(dataset.keys())
         num_videos= len(train_dataset.keys())
         splits = read_json(args.split)
@@ -122,11 +137,13 @@ def main():
             train_keys.append(keys[-1])
             test_keys= keys[0:5]
         else:
-            train_keys_1=keys[0:(i*5)]+keys[((i+1)*5):-1]
+            train_keys=keys[0:(i*5)]+keys[((i+1)*5):-1]
             train_keys.append(keys[-1])
             test_keys= keys[(i*5):((i+1)*5)]
-        train_keys= list(train_dataset.keys())
-        test_keys = split['test_keys']
+        shuffle(train_keys)
+        # print(test_keys)
+        # train_keys= list(train_dataset.keys())
+        # test_keys = split['test_keys']
         print("# total videos {}. # train videos {}. # test videos {}".format(num_videos, len(train_keys), len(test_keys)))
 
         print("Initialize model")
@@ -170,7 +187,7 @@ def main():
         save_seq=None
         count=0
         # for epoch in range(start_epoch, args.max_epoch):
-        for epoch in range(start_epoch, 1000):
+        for epoch in range(start_epoch, 400):
 
             idxs = np.arange(len(train_keys))
             np.random.shuffle(idxs) # shuffle indices
@@ -215,14 +232,16 @@ def main():
                 baselines[key] = 0.9 * baselines[key] + 0.1 * np.mean(epis_rewards) # update baseline reward via moving average
                 reward_writers[key].append(np.mean(epis_rewards))
                 reward_writers_nll[key].append(np.mean(epis_reward_nll))
-            if epoch%200==0:
-                evaluate_save(model, dataset, test_keys, use_gpu)
+            if (epoch+1)%100==0:
+                evaluate_save(model, dataset, test_keys, use_gpu, i=i)
             epoch_reward = np.mean([reward_writers[key][epoch] for key in train_keys])
             epoch_nll_reward= np.mean([reward_writers_nll[key][epoch] for key in train_keys])
             print("epoch {}/{}\t reward {}\t nll_reward {}\t".format(epoch+1, args.max_epoch, epoch_reward, epoch_nll_reward))
 
         write_json(reward_writers, osp.join(args.save_dir, 'rewards.json'))
-        evaluate(model, dataset, test_keys, use_gpu)
+        # evaluate(model, dataset, test_keys, use_gpu)
+        evaluate_save(model, dataset, test_keys, use_gpu, i=i)
+
 
         elapsed = round(time.time() - start_time)
         elapsed = str(datetime.timedelta(seconds=elapsed))
@@ -230,67 +249,69 @@ def main():
 
         # model_state_dict = model.module.state_dict() if use_gpu else model.state_dict()
         model_state_dict = model.state_dict() if use_gpu else model.state_dict()
-        model_save_path = osp.join(args.save_dir, 'model_epoch' + str(args.max_epoch) + '.pth.tar')
+        model_save_path = osp.join(args.save_dir, 'model_epoch_'+str(i)+"_" + str(args.max_epoch) + '.pth.tar')
         save_checkpoint(model_state_dict, model_save_path)
         print("Model saved to {}".format(model_save_path))
 
         dataset.close()
 
-    def evaluate(model, dataset, test_keys, use_gpu):
-        print("==> Test")
-        with torch.no_grad():
-            model.eval()
-            fms = []
-            eval_metric = 'avg' if args.metric == 'tvsum' else 'max'
+def evaluate(model, dataset, test_keys, use_gpu):
+    print("==> Test")
+    with torch.no_grad():
+        model.eval()
+        fms = []
+        eval_metric = 'avg' if args.metric == 'tvsum' else 'max'
 
-            if args.verbose: table = [["No.", "Video", "F-score"]]
+        if args.verbose: table = [["No.", "Video", "F-score"]]
+
+        if args.save_results:
+            h5_res = h5py.File(osp.join(args.save_dir, 'result.h5'), 'w')
+
+        for key_idx, key in enumerate(test_keys):
+            seq = dataset[key]['features'][...]
+            seq = torch.from_numpy(seq).unsqueeze(0)
+            if use_gpu: seq = seq.cuda()
+            probs = model(seq)
+            probs = probs.data.cpu().squeeze().numpy()
+
+            cps = dataset[key]['change_points'][...]
+            num_frames = dataset[key]['n_frames'][()]
+            nfps = dataset[key]['n_frame_per_seg'][...].tolist()
+            positions = dataset[key]['picks'][...]
+            user_summary = dataset[key]['user_summary'][...]
+
+            machine_summary = vsum_tools.generate_summary(probs, cps, num_frames, nfps, positions)
+            fm, _, _ = vsum_tools.evaluate_summary(machine_summary, user_summary, eval_metric)
+            fms.append(fm)
+
+            if args.verbose:
+                table.append([key_idx+1, key, "{:.1%}".format(fm)])
 
             if args.save_results:
-                h5_res = h5py.File(osp.join(args.save_dir, 'result.h5'), 'w')
+                h5_res.create_dataset(key + '/score', data=probs)
+                h5_res.create_dataset(key + '/machine_summary', data=machine_summary)
+                h5_res.create_dataset(key + '/gtscore', data=dataset[key]['gtscore'][...])
+                h5_res.create_dataset(key + '/fm', data=fm)
 
-            for key_idx, key in enumerate(test_keys):
-                seq = dataset[key]['features'][...]
-                seq = torch.from_numpy(seq).unsqueeze(0)
-                if use_gpu: seq = seq.cuda()
-                probs = model(seq)
-                probs = probs.data.cpu().squeeze().numpy()
+    if args.verbose:
+        print(tabulate(table))
 
-                cps = dataset[key]['change_points'][...]
-                num_frames = dataset[key]['n_frames'][()]
-                nfps = dataset[key]['n_frame_per_seg'][...].tolist()
-                positions = dataset[key]['picks'][...]
-                user_summary = dataset[key]['user_summary'][...]
+    if args.save_results: h5_res.close()
 
-                machine_summary = vsum_tools.generate_summary(probs, cps, num_frames, nfps, positions)
-                fm, _, _ = vsum_tools.evaluate_summary(machine_summary, user_summary, eval_metric)
-                fms.append(fm)
+    mean_fm = np.mean(fms)
+    print("Average F-score {:.1%}".format(mean_fm))
 
-                if args.verbose:
-                    table.append([key_idx+1, key, "{:.1%}".format(fm)])
-
-                if args.save_results:
-                    h5_res.create_dataset(key + '/score', data=probs)
-                    h5_res.create_dataset(key + '/machine_summary', data=machine_summary)
-                    h5_res.create_dataset(key + '/gtscore', data=dataset[key]['gtscore'][...])
-                    h5_res.create_dataset(key + '/fm', data=fm)
-
-        if args.verbose:
-            print(tabulate(table))
-
-        if args.save_results: h5_res.close()
-
-        mean_fm = np.mean(fms)
-        print("Average F-score {:.1%}".format(mean_fm))
-
-        return mean_fm
+    return mean_fm
 
 def print_save(txt):
     f = open("results.txt","a")
     f.write(str(txt)+" \n")
     f.close()
 
-def evaluate_save(model, dataset, test_keys, use_gpu):
+def evaluate_save(model, dataset, test_keys, use_gpu, i=1000):
     print_save("==> Test")
+    print(test_keys)
+    print(dataset.keys())
     with torch.no_grad():
         model.eval()
         fms = []
@@ -334,6 +355,7 @@ def evaluate_save(model, dataset, test_keys, use_gpu):
 
     mean_fm = np.mean(fms)
     print_save("Average F-score {:.1%}".format(mean_fm))
+    print_save("Iteration Number: "+str(i))
     model.train()
     return mean_fm
 

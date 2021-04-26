@@ -1,40 +1,279 @@
 ==> Test 
----  --------  -------
-No.  Video     F-score
-1    video_1   60.0%
-2    video_11  60.2%
-3    video_3   70.4%
-4    video_23  73.2%
-5    video_25  57.6%
----  --------  ------- 
-Average F-score 64.3% 
+---  -------  -------
+No.  Video    F-score
+1    video_1  60.0%
+2    video_2  28.8%
+3    video_3  70.4%
+4    video_4  47.3%
+5    video_5  36.5%
+---  -------  ------- 
+Average F-score 48.6% 
+Iteration Number: 0 
+==> Test 
+---  -------  -------
+No.  Video    F-score
+1    video_1  60.0%
+2    video_2  22.0%
+3    video_3  70.4%
+4    video_4  39.3%
+5    video_5  36.5%
+---  -------  ------- 
+Average F-score 45.7% 
+Iteration Number: 0 
+==> Test 
+---  -------  -------
+No.  Video    F-score
+1    video_1  60.0%
+2    video_2  28.6%
+3    video_3  70.4%
+4    video_4  47.3%
+5    video_5  36.5%
+---  -------  ------- 
+Average F-score 48.6% 
+Iteration Number: 0 
+==> Test 
+---  -------  -------
+No.  Video    F-score
+1    video_1  60.0%
+2    video_2  22.0%
+3    video_3  70.4%
+4    video_4  47.3%
+5    video_5  36.5%
+---  -------  ------- 
+Average F-score 47.2% 
+Iteration Number: 0 
+==> Test 
+---  -------  -------
+No.  Video    F-score
+1    video_1  60.0%
+2    video_2  22.0%
+3    video_3  70.4%
+4    video_4  47.3%
+5    video_5  36.5%
+---  -------  ------- 
+Average F-score 47.2% 
+Iteration Number: 0 
+
 ==> Test 
 ---  --------  -------
 No.  Video     F-score
-1    video_1   60.0%
-2    video_11  60.2%
-3    video_3   70.4%
-4    video_23  73.2%
-5    video_25  57.6%
+1    video_6   21.0%
+2    video_7   25.8%
+3    video_8   61.5%
+4    video_9   37.2%
+5    video_10  28.2%
 ---  --------  ------- 
-Average F-score 64.3% 
+Average F-score 34.7% 
+Iteration Number: 1 
 ==> Test 
 ---  --------  -------
 No.  Video     F-score
-1    video_1   60.0%
-2    video_11  60.2%
-3    video_3   70.4%
-4    video_23  73.2%
-5    video_25  57.6%
+1    video_6   21.0%
+2    video_7   25.8%
+3    video_8   61.5%
+4    video_9   37.3%
+5    video_10  28.2%
 ---  --------  ------- 
-Average F-score 64.3% 
+Average F-score 34.8% 
+Iteration Number: 1 
 ==> Test 
 ---  --------  -------
 No.  Video     F-score
-1    video_1   60.0%
-2    video_11  60.2%
-3    video_3   70.4%
-4    video_23  73.2%
+1    video_6   21.0%
+2    video_7   25.8%
+3    video_8   61.5%
+4    video_9   33.2%
+5    video_10  32.5%
+---  --------  ------- 
+Average F-score 34.8% 
+Iteration Number: 1 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_6   21.0%
+2    video_7   25.8%
+3    video_8   61.5%
+4    video_9   37.3%
+5    video_10  32.5%
+---  --------  ------- 
+Average F-score 35.6% 
+Iteration Number: 1 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_6   21.0%
+2    video_7   25.8%
+3    video_8   61.5%
+4    video_9   37.3%
+5    video_10  32.5%
+---  --------  ------- 
+Average F-score 35.6% 
+Iteration Number: 1 
+==> Test 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_11  60.2%
+2    video_12  26.7%
+3    video_13  29.3%
+4    video_14  31.5%
+5    video_15  55.1%
+---  --------  ------- 
+Average F-score 40.5% 
+Iteration Number: 2 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_11  60.2%
+2    video_12  40.4%
+3    video_13  29.1%
+4    video_14  31.5%
+5    video_15  55.1%
+---  --------  ------- 
+Average F-score 43.3% 
+Iteration Number: 2 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_11  60.2%
+2    video_12  40.4%
+3    video_13  29.1%
+4    video_14  31.5%
+5    video_15  55.2%
+---  --------  ------- 
+Average F-score 43.3% 
+Iteration Number: 2 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_11  60.2%
+2    video_12  40.4%
+3    video_13  29.1%
+4    video_14  31.5%
+5    video_15  55.1%
+---  --------  ------- 
+Average F-score 43.3% 
+Iteration Number: 2 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_11  60.2%
+2    video_12  40.4%
+3    video_13  29.1%
+4    video_14  31.5%
+5    video_15  55.1%
+---  --------  ------- 
+Average F-score 43.3% 
+Iteration Number: 2 
+==> Test 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_16  34.9%
+2    video_17  20.9%
+3    video_18  30.7%
+4    video_19  64.5%
+5    video_20  45.5%
+---  --------  ------- 
+Average F-score 39.3% 
+Iteration Number: 3 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_16  34.9%
+2    video_17  20.9%
+3    video_18  30.7%
+4    video_19  64.5%
+5    video_20  45.9%
+---  --------  ------- 
+Average F-score 39.4% 
+Iteration Number: 3 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_16  34.9%
+2    video_17  20.9%
+3    video_18  43.9%
+4    video_19  64.5%
+5    video_20  45.9%
+---  --------  ------- 
+Average F-score 42.0% 
+Iteration Number: 3 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_16  34.9%
+2    video_17  20.9%
+3    video_18  43.9%
+4    video_19  64.5%
+5    video_20  45.9%
+---  --------  ------- 
+Average F-score 42.0% 
+Iteration Number: 3 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_16  34.9%
+2    video_17  20.9%
+3    video_18  43.9%
+4    video_19  64.5%
+5    video_20  45.9%
+---  --------  ------- 
+Average F-score 42.0% 
+Iteration Number: 3 
+==> Test 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_21  15.9%
+2    video_22  37.0%
+3    video_23  73.2%
+4    video_24  46.8%
 5    video_25  57.6%
 ---  --------  ------- 
-Average F-score 64.3% 
+Average F-score 46.1% 
+Iteration Number: 4 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_21  15.9%
+2    video_22  35.7%
+3    video_23  73.2%
+4    video_24  46.8%
+5    video_25  57.6%
+---  --------  ------- 
+Average F-score 45.8% 
+Iteration Number: 4 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_21  15.9%
+2    video_22  35.7%
+3    video_23  73.2%
+4    video_24  46.8%
+5    video_25  57.6%
+---  --------  ------- 
+Average F-score 45.8% 
+Iteration Number: 4 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_21  15.9%
+2    video_22  35.7%
+3    video_23  73.2%
+4    video_24  46.8%
+5    video_25  57.6%
+---  --------  ------- 
+Average F-score 45.8% 
+Iteration Number: 4 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_21  15.9%
+2    video_22  35.7%
+3    video_23  73.2%
+4    video_24  46.8%
+5    video_25  57.6%
+---  --------  ------- 
+Average F-score 45.8% 
+Iteration Number: 4 
