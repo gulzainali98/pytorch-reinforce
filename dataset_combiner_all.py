@@ -17,6 +17,21 @@ print(files)
 # hj()
 count=0
 combined=h5py.File("combined-all.h5", "r")
+max=0
+c=0
+a= combined['video_2']['features'][...]
+print(a.shape)
+hj()
+for key in list(combined.keys()):
+    a= np.array(combined[key]['features'][...])
+    if a.shape[0]>max:
+        max= a.shape[0]
+    if a.shape[0]>1518-700:
+        c= c+1
+
+print(max)
+print(c)
+hj()
 # print(len(combined.keys()))
 # print(np.array(combined['video_1']['features'][...]).shape)
 # hj()

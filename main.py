@@ -20,7 +20,9 @@ from models import *
 from transformer_discriminator import *
 
 from rewards import compute_reward
+from rewards import *
 import vsum_tools
+from adversary import *
 
 
 ntokens = 64 # the size of vocabulary
@@ -86,6 +88,54 @@ nlayers = 2 # the number of nn.TransformerEncoderLayer in nn.TransformerEncoder
 nhead = 2 # the number of heads in the multiheadattention models
 dropout = 0.2 # the dropout value
 
+def complete_video(sd, ntokens=1518, device=None, save_seq= None):
+    if sd.shape[1]==ntokens:
+        return sd
+    if sd.shape[1]<ntokens:
+        # add more vectors
+        fea= np.load("./blank_features.npy",allow_pickle=True)
+        # new_tensor= torch.zeros((sd.shape[0],sd.shape[1],50))
+        # new_tensor= torch.zeros(sd.shape)
+        # diff= sd.shape[0]
+        fea= np.expand_dims(fea,axis=0)
+        fea= np.expand_dims(fea,axis=0)
+        fea= torch.tensor(fea).to(device)
+        # print(fea.shape)
+
+        # print(fea.shape)
+        while sd.shape[1]!=ntokens:
+        # sd= torch.cat([sd,fea],dim=0)
+            sd= torch.cat((sd,fea),dim=1)
+        # print(sd.shape)
+        return sd
+
+    if sd.shape[1]>ntokens:
+        try:
+            return sd[:,0:ntokens,:]
+        except Exception as e:
+            print("return saved sequence")
+            print(save_seq.shape)
+            print(sd.shape)
+            if save_seq.shape[1]==ntokens:
+                return save_seq
+            elif save_seq.shape[1]<ntokens:
+                fea= np.load("./blank_features.npy",allow_pickle=True)
+                # new_tensor= torch.zeros((sd.shape[0],sd.shape[1],50))
+                # new_tensor= torch.zeros(sd.shape)
+                # diff= sd.shape[0]
+                fea= np.expand_dims(fea,axis=0)
+                fea= np.expand_dims(fea,axis=0)
+                fea= torch.tensor(fea).to(device)
+
+                while save_seq.shape[1]!=ntokens:
+                # sd= torch.cat([sd,fea],dim=0)
+                    save_seq= torch.cat((save_seq,fea),dim=1)
+                # print(sd.shape)
+                return save_seq
+            else:
+                return save_seq[:,0:ntokens,:]
+
+
 def cmp_item(a,b):
     if int(a.split("_")[-1])>int(b.split("_")[-1]):
         return 1
@@ -117,7 +167,7 @@ def main():
 
     print("Initialize dataset {}".format(args.dataset))
 
-    for i in range(4,5):
+    for i in range(0,5):
         dataset = h5py.File(args.dataset, 'r')
         train_dataset= h5py.File("combined-all.h5","r")
         keys= list(train_dataset.keys())
@@ -148,6 +198,7 @@ def main():
 
         print("Initialize model")
         model = DSN(in_dim=args.input_dim, hid_dim=args.hidden_dim, num_layers=args.num_layers, cell=args.rnn_cell)
+        adversary= make_adversary(1518, device)
         # my-change
         # model = TransformerModel(ntokens, emsize, nhead, nhid, nlayers, dropout=dropout)
         print("Model size: {:.5f}M".format(sum(p.numel() for p in model.parameters())/1000000.0))
@@ -167,6 +218,7 @@ def main():
             # model = nn.DataParallel(model).cuda()
             S_D= S_D.to(device)
             model=model.to(device)
+            adversary= adversary.to(device)
 
         if args.evaluate:
             print("Evaluate only")
@@ -187,7 +239,7 @@ def main():
         save_seq=None
         count=0
         # for epoch in range(start_epoch, args.max_epoch):
-        for epoch in range(start_epoch, 400):
+        for epoch in range(start_epoch, 300):
 
             idxs = np.arange(len(train_keys))
             np.random.shuffle(idxs) # shuffle indices
@@ -242,7 +294,10 @@ def main():
         # evaluate(model, dataset, test_keys, use_gpu)
         evaluate_save(model, dataset, test_keys, use_gpu, i=i)
 
-
+        model, adversary= manipulate(model, adversary, train_dataset=train_dataset, train_keys=train_keys, optimizer= optimizer, scheduler=scheduler, device= device, args=args, together=False, s_d=S_D)
+        evaluate_save_adversary(model, adversary, dataset,test_keys, use_gpu, i=i, together= False)
+        model, adversary= manipulate(model, adversary, train_dataset=train_dataset, train_keys=train_keys, optimizer= optimizer, scheduler=scheduler, device= device, args=args, together=True,  s_d=S_D)
+        evaluate_save_adversary(model, adversary, dataset,test_keys, use_gpu, i=i, together= True)
         elapsed = round(time.time() - start_time)
         elapsed = str(datetime.timedelta(seconds=elapsed))
         print("Finished. Total elapsed time (h:m:s): {}".format(elapsed))
@@ -252,7 +307,8 @@ def main():
         model_save_path = osp.join(args.save_dir, 'model_epoch_'+str(i)+"_" + str(args.max_epoch) + '.pth.tar')
         save_checkpoint(model_state_dict, model_save_path)
         print("Model saved to {}".format(model_save_path))
-
+        print_save("="*30)
+        print_save("\n")
         dataset.close()
 
 def evaluate(model, dataset, test_keys, use_gpu):
@@ -303,8 +359,8 @@ def evaluate(model, dataset, test_keys, use_gpu):
 
     return mean_fm
 
-def print_save(txt):
-    f = open("results.txt","a")
+def print_save(txt, location="results.txt"):
+    f = open(location,"a")
     f.write(str(txt)+" \n")
     f.close()
 
@@ -359,6 +415,71 @@ def evaluate_save(model, dataset, test_keys, use_gpu, i=1000):
     model.train()
     return mean_fm
 
+def evaluate_save_adversary(model, adversary, dataset, test_keys, use_gpu, i=1000, together= False):
+    if together:
+        print_save("==> Test Adversary and Model Together")
+    else:
+        print_save("==> Test Adversary")
+    print(test_keys)
+    print(dataset.keys())
+    with torch.no_grad():
+        model.eval()
+        fms = []
+        eval_metric = 'avg' if args.metric == 'tvsum' else 'max'
+
+        if args.verbose: table = [["No.", "Video", "F-score"]]
+
+        if args.save_results:
+            h5_res = h5py.File(osp.join(args.save_dir, 'result.h5'), 'w')
+
+        for key_idx, key in enumerate(test_keys):
+            seq = dataset[key]['features'][...]
+            seq = torch.from_numpy(seq).unsqueeze(0)
+            if use_gpu:
+                seq = seq.cuda()
+                device= torch.device("cuda")
+            else:
+                device= torch.device("cpu")
+            length= seq.shape[1]
+            seq_updated= complete_video(seq,device=device)
+
+            src_mask=adversary.generate_square_subsequent_mask(seq.size(0))
+            seq_manipulated= adversary(seq_updated,src_mask)
+            seq_manipulated= seq_manipulated[:,:length,:]
+            # print(seq_manipulated.shape)
+            # print(seq.shape)
+            probs = model(seq_manipulated) # output shape (1
+            probs = probs.data.cpu().squeeze().numpy()
+
+            cps = dataset[key]['change_points'][...]
+            num_frames = dataset[key]['n_frames'][()]
+            nfps = dataset[key]['n_frame_per_seg'][...].tolist()
+            positions = dataset[key]['picks'][...]
+            user_summary = dataset[key]['user_summary'][...]
+
+            machine_summary = vsum_tools.generate_summary(probs, cps, num_frames, nfps, positions)
+            fm, _, _ = vsum_tools.evaluate_summary(machine_summary, user_summary, eval_metric)
+            fms.append(fm)
+
+            if args.verbose:
+                table.append([key_idx+1, key, "{:.1%}".format(fm)])
+
+            if args.save_results:
+                h5_res.create_dataset(key + '/score', data=probs)
+                h5_res.create_dataset(key + '/machine_summary', data=machine_summary)
+                h5_res.create_dataset(key + '/gtscore', data=dataset[key]['gtscore'][...])
+                h5_res.create_dataset(key + '/fm', data=fm)
+
+    if args.verbose:
+        print_save(tabulate(table))
+
+    if args.save_results: h5_res.close()
+
+    mean_fm = np.mean(fms)
+    print_save("Average F-score {:.1%}".format(mean_fm))
+    print_save("Iteration Number: "+str(i))
+    model.train()
+    return mean_fm
 
 if __name__ == '__main__':
     main()
