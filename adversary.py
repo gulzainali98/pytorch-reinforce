@@ -4,6 +4,7 @@ import torch.nn as nn
 import torch.nn.init as init
 import torch.optim as optim
 import math
+from torch.nn import functional as F
 
 import os
 import os.path as osp
@@ -75,75 +76,33 @@ def complete_video(sd, ntokens=1518, device=None, save_seq= None):
                 return save_seq
             else:
                 return save_seq[:,0:ntokens,:]
-class PositionalEncoding(nn.Module):
 
-    def __init__(self, d_model, dropout=0.1, max_len=5000):
-        super(PositionalEncoding, self).__init__()
-        self.dropout = nn.Dropout(p=dropout)
 
-        pe = torch.zeros(max_len, d_model)
-        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
-        pe[:, 0::2] = torch.sin(position * div_term)
-        pe[:, 1::2] = torch.cos(position * div_term)
-        pe = pe.unsqueeze(0).transpose(0, 1)
-        self.register_buffer('pe', pe)
+class LSTMAdversary(nn.Module):
+    """Deep Summarization Network"""
+    def __init__(self, in_dim=1024, hid_dim=1024, num_layers=1, cell='lstm'):
+        super(LSTMAdversary, self).__init__()
+        assert cell in ['lstm', 'gru'], "cell must be either 'lstm' or 'gru'"
+        if cell == 'lstm':
+            self.rnn = nn.LSTM(in_dim, hid_dim, num_layers=num_layers, bidirectional=True, batch_first=True)
+        else:
+            self.rnn = nn.GRU(in_dim, hid_dim, num_layers=num_layers, bidirectional=True, batch_first=True)
+        self.fc = nn.Linear(hid_dim*2, 1024)
+        self.activation= nn.Tanh()
 
     def forward(self, x):
-        x = x + self.pe[:x.size(0), :]
-        return self.dropout(x)
+        h, _ = self.rnn(x)
+        # p = F.sigmoid(self.fc(h))
+        p= self.activation(self.fc(h))
+        return p
+#
+class forget(nn.Module):
+    def __init__(self, in_dim=1024, out_dim=1):
+        self.forget_gate=nn.Linear(in_dim, out_dim)
 
+    def forward(self,x):
+        return F.sigmoid(self.forget_gate(x))
 
-class TransformAdversary(nn.Module):
-
-    def __init__(self, ntoken, ninp, nhead, nhid, nlayers, device,dropout=0.5):
-        super(TransformAdversary, self).__init__()
-        from torch.nn import TransformerEncoder, TransformerEncoderLayer
-        self.model_type = 'Transformer'
-        self.pos_encoder = PositionalEncoding(ninp, dropout).to(device)
-        encoder_layers = TransformerEncoderLayer(ninp, nhead, nhid, dropout).to(device)
-        self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers).to(device)
-        self.encoder = nn.Embedding(ntoken, ninp).to(device)
-        self.ninp = ninp
-        # print(ntoken*ninp)
-        # self.decoder = nn.Linear(ntoken*ninp, ntoken*ninp)
-        self.decoder= nn.Conv1d(1518, 1518, 1, stride=1)
-        self.device= device
-        self.sigmoid= nn.Sigmoid()
-
-        self.init_weights()
-
-    def generate_square_subsequent_mask(self, sz):
-        mask = (torch.triu(torch.ones(sz, sz)) == 1).transpose(0, 1)
-        mask = mask.float().masked_fill(mask == 0, float('-inf')).masked_fill(mask == 1, float(0.0))
-        return mask.to(self.device)
-
-    def init_weights(self):
-        initrange = 0.1
-        self.encoder.weight.data.uniform_(-initrange, initrange)
-        self.decoder.bias.data.zero_()
-        self.decoder.weight.data.uniform_(-initrange, initrange)
-
-    def forward(self, src, src_mask):
-        # src = self.encoder(src) * math.sqrt(self.ninp)
-        inp=src
-        src= src.to(self.device)
-        self.pos_encoder= self.pos_encoder.to(self.device)
-        src = self.pos_encoder(src)
-        output = self.transformer_encoder(src, src_mask)
-        # print(output.shape)
-        # output= output.view(inp.shape[0],-1)
-        # output= output.unsqueeze(0)
-        # print(output.shape)
-        # print(output.shape)
-        # print(output.shape)
-        output = self.decoder(output)
-        output= output.squeeze(0)
-        output =self.sigmoid(output)
-        output= output.reshape((src.shape[0],src.shape[1],1024))
-        # output= output.unsqueeze(0)
-        return output
-# i am not passing positional encoding
 
 def make_adversary(ntokens, device):
     ntokens = ntokens # the size of vocabulary
@@ -153,19 +112,21 @@ def make_adversary(ntokens, device):
     nhead = 2 # the number of heads in the multiheadattention models
     dropout = 0.2 # the dropout value
     device=device
-    model =  TransformAdversary(ntokens, emsize, nhead, nhid, nlayers, device,dropout)
+    model =  LSTMAdversary()
     return model
 
-def manipulate(m, a, train_dataset=None, train_keys=None, optimizer=None, scheduler=None, device=None, use_gpu=True, args=None, together=False, epoch=200, s_d=None):
+def manipulate(m, a, train_dataset=None, train_keys=None, optimizer=None, scheduler=None, device=None, use_gpu=True, args=None, together=False, epoch=60, s_d=None):
     if not together:
         print("==> Start training Adversary")
     else:
         print("==> Start training Adversary and Model together")
     model= m
     adversary= a
+    f= forget()
     start_time = time.time()
     model.train()
     adversary.train()
+    f.train()
     if not together:
         for param in model.parameters():
             param.requires_grad = False
@@ -195,14 +156,16 @@ def manipulate(m, a, train_dataset=None, train_keys=None, optimizer=None, schedu
             seq = torch.from_numpy(seq).unsqueeze(0) # input shape (1, seq_len, dim)
 
             if use_gpu: seq = seq.cuda()
-            length= seq.shape[1]
-            seq_updated= complete_video(seq,device=device)
+            # length= seq.shape[1]
+            # seq_updated= complete_video(seq,device=device)
 
-            src_mask=adversary.generate_square_subsequent_mask(seq.size(0))
-            seq_manipulated= adversary(seq_updated,src_mask)
-            seq_manipulated= seq_manipulated[:,:length,:]
+            # src_mask=adversary.generate_square_subsequent_mask(seq.size(0))
+            noise= adversary(seq) #(1,seq_len,1024)
+            # print(seq_manipulated.shape)
+            # seq_manipulated= seq_manipulated[:,:length,:]
             # print(seq_manipulated.shape)
             # print(seq.shape)
+            seq_manipulated= seq+(noise*f(seq))
             probs = model(seq_manipulated) # output shape (1, seq_len, 1)
 
 

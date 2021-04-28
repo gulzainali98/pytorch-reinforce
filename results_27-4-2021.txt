@@ -1,0 +1,71 @@
+==> Test 
+---  -------  -------
+No.  Video    F-score
+1    video_1  60.0%
+2    video_2  22.0%
+3    video_3  70.4%
+4    video_4  47.3%
+5    video_5  36.5%
+---  -------  ------- 
+Average F-score 47.2% 
+Iteration Number: 0 
+==> Test 
+---  -------  -------
+No.  Video    F-score
+1    video_1  60.0%
+2    video_2  28.8%
+3    video_3  70.4%
+4    video_4  47.3%
+5    video_5  36.5%
+---  -------  ------- 
+Average F-score 48.6% 
+Iteration Number: 0 
+==> Test 
+---  -------  -------
+No.  Video    F-score
+1    video_1  60.0%
+2    video_2  17.1%
+3    video_3  70.4%
+4    video_4  46.9%
+5    video_5  31.2%
+---  -------  ------- 
+Average F-score 45.1% 
+Iteration Number: 0 
+==> Test 
+---  -------  -------
+No.  Video    F-score
+1    video_1  60.0%
+2    video_2  17.1%
+3    video_3  70.4%
+4    video_4  46.9%
+5    video_5  31.2%
+---  -------  ------- 
+Average F-score 45.1% 
+Iteration Number: 0 
+==> Test Adversary 
+---  -------  -------
+No.  Video    F-score
+1    video_1  60.0%
+2    video_2  35.8%
+3    video_3  45.1%
+4    video_4  28.8%
+5    video_5  32.0%
+---  -------  ------- 
+Average F-score 40.3% 
+Iteration Number: 0 
+==> Test Adversary and Model Together 
+---  -------  -------
+No.  Video    F-score
+1    video_1  60.0%
+2    video_2  35.8%
+3    video_3  45.1%
+4    video_4  28.8%
+5    video_5  32.0%
+---  -------  ------- 
+Average F-score 40.3% 
+Iteration Number: 0 
+
+ Maximum_mean: 0.5247791525137866 
+============================== 
+
+ 

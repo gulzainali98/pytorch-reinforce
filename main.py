@@ -238,6 +238,7 @@ def main():
         label= torch.full((1,), 1, dtype=torch.long).to(device)
         save_seq=None
         count=0
+        max_mean=0
         # for epoch in range(start_epoch, args.max_epoch):
         for epoch in range(start_epoch, 300):
 
@@ -284,6 +285,10 @@ def main():
                 baselines[key] = 0.9 * baselines[key] + 0.1 * np.mean(epis_rewards) # update baseline reward via moving average
                 reward_writers[key].append(np.mean(epis_rewards))
                 reward_writers_nll[key].append(np.mean(epis_reward_nll))
+
+                mean=get_f_mean(model, dataset, test_keys, use_gpu, i=i)
+                if mean > max_mean:
+                    max_mean=mean
             if (epoch+1)%100==0:
                 evaluate_save(model, dataset, test_keys, use_gpu, i=i)
             epoch_reward = np.mean([reward_writers[key][epoch] for key in train_keys])
@@ -295,8 +300,14 @@ def main():
         evaluate_save(model, dataset, test_keys, use_gpu, i=i)
 
         model, adversary= manipulate(model, adversary, train_dataset=train_dataset, train_keys=train_keys, optimizer= optimizer, scheduler=scheduler, device= device, args=args, together=False, s_d=S_D)
+        mean=get_f_mean(model, dataset, test_keys, use_gpu, i=i)
+        if mean > max_mean:
+            max_mean=mean
         evaluate_save_adversary(model, adversary, dataset,test_keys, use_gpu, i=i, together= False)
         model, adversary= manipulate(model, adversary, train_dataset=train_dataset, train_keys=train_keys, optimizer= optimizer, scheduler=scheduler, device= device, args=args, together=True,  s_d=S_D)
+        mean=get_f_mean(model, dataset, test_keys, use_gpu, i=i)
+        if mean > max_mean:
+            max_mean=mean
         evaluate_save_adversary(model, adversary, dataset,test_keys, use_gpu, i=i, together= True)
         elapsed = round(time.time() - start_time)
         elapsed = str(datetime.timedelta(seconds=elapsed))
@@ -307,6 +318,7 @@ def main():
         model_save_path = osp.join(args.save_dir, 'model_epoch_'+str(i)+"_" + str(args.max_epoch) + '.pth.tar')
         save_checkpoint(model_state_dict, model_save_path)
         print("Model saved to {}".format(model_save_path))
+        print_save("\n Maximum_mean: "+str(max_mean))
         print_save("="*30)
         print_save("\n")
         dataset.close()
@@ -363,6 +375,49 @@ def print_save(txt, location="results.txt"):
     f = open(location,"a")
     f.write(str(txt)+" \n")
     f.close()
+def get_f_mean(model, dataset, test_keys, use_gpu, i=1000):
+    with torch.no_grad():
+        model.eval()
+        fms = []
+        eval_metric = 'avg' if args.metric == 'tvsum' else 'max'
+
+        if args.verbose: table = [["No.", "Video", "F-score"]]
+
+        if args.save_results:
+            h5_res = h5py.File(osp.join(args.save_dir, 'result.h5'), 'w')
+
+        for key_idx, key in enumerate(test_keys):
+            seq = dataset[key]['features'][...]
+            seq = torch.from_numpy(seq).unsqueeze(0)
+            if use_gpu: seq = seq.cuda()
+            probs = model(seq)
+            probs = probs.data.cpu().squeeze().numpy()
+
+            cps = dataset[key]['change_points'][...]
+            num_frames = dataset[key]['n_frames'][()]
+            nfps = dataset[key]['n_frame_per_seg'][...].tolist()
+            positions = dataset[key]['picks'][...]
+            user_summary = dataset[key]['user_summary'][...]
+
+            machine_summary = vsum_tools.generate_summary(probs, cps, num_frames, nfps, positions)
+            fm, _, _ = vsum_tools.evaluate_summary(machine_summary, user_summary, eval_metric)
+            fms.append(fm)
+
+            if args.verbose:
+                table.append([key_idx+1, key, "{:.1%}".format(fm)])
+
+            if args.save_results:
+                h5_res.create_dataset(key + '/score', data=probs)
+                h5_res.create_dataset(key + '/machine_summary', data=machine_summary)
+                h5_res.create_dataset(key + '/gtscore', data=dataset[key]['gtscore'][...])
+                h5_res.create_dataset(key + '/fm', data=fm)
+
+
+    if args.save_results: h5_res.close()
+
+    mean_fm = np.mean(fms)
+    model.train()
+    return mean_fm
 
 def evaluate_save(model, dataset, test_keys, use_gpu, i=1000):
     print_save("==> Test")
@@ -443,12 +498,12 @@ def evaluate_save_adversary(model, adversary, dataset, test_keys, use_gpu, i=100
             length= seq.shape[1]
             seq_updated= complete_video(seq,device=device)
 
-            src_mask=adversary.generate_square_subsequent_mask(seq.size(0))
-            seq_manipulated= adversary(seq_updated,src_mask)
-            seq_manipulated= seq_manipulated[:,:length,:]
+            seq_manipulated= adversary(seq) #(1,seq_len,1024)
+            # print(seq_manipulated.shape)
+            # seq_manipulated= seq_manipulated[:,:length,:]
             # print(seq_manipulated.shape)
             # print(seq.shape)
-            probs = model(seq_manipulated) # output shape (1
+            probs = model(seq_manipulated) # o
             probs = probs.data.cpu().squeeze().numpy()
 
             cps = dataset[key]['change_points'][...]

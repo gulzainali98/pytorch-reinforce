@@ -19,8 +19,10 @@ count=0
 combined=h5py.File("combined-all.h5", "r")
 max=0
 c=0
-a= combined['video_2']['features'][...]
+a= np.array(combined['video_2']['features'][...])
 print(a.shape)
+print(a.max())
+print(a.min())
 hj()
 for key in list(combined.keys()):
     a= np.array(combined[key]['features'][...])
