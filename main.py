@@ -174,7 +174,7 @@ def main():
         keys.sort(key=cmp_key)
         # dataset = h5py.File(args.dataset, 'r')
         # train_dataset= h5py.File("combined-all.h5","r")
-
+        reward_dict={}
 
         # num_videos = len(dataset.keys())
         num_videos= len(train_dataset.keys())
@@ -240,7 +240,7 @@ def main():
         count=0
         max_mean=0
         # for epoch in range(start_epoch, args.max_epoch):
-        for epoch in range(start_epoch, 300):
+        for epoch in range(start_epoch, 250):
 
             idxs = np.arange(len(train_keys))
             np.random.shuffle(idxs) # shuffle indices
@@ -274,6 +274,13 @@ def main():
                     reward, nll = compute_reward(seq, actions,S_D, loss=loss, label=label, activation=activation ,use_gpu=use_gpu, device=device, save_seq=save_seq)
 
                     expected_reward = log_probs.mean() * (reward - baselines[key])
+                    try:
+                        r= reward_dict[key]
+                        if r<expected_reward:
+                            reward_dict[key]=expected_reward.detach()
+                    except Exception as e:
+                        reward_dict[key]=expected_reward
+                    reward_dict[key]= expected_reward.detach()
                     cost -= expected_reward # minimize negative expected reward
                     epis_rewards.append(reward.item())
                     epis_reward_nll.append(nll.item())
@@ -299,16 +306,23 @@ def main():
         # evaluate(model, dataset, test_keys, use_gpu)
         evaluate_save(model, dataset, test_keys, use_gpu, i=i)
 
-        model, adversary= manipulate(model, adversary, train_dataset=train_dataset, train_keys=train_keys, optimizer= optimizer, scheduler=scheduler, device= device, args=args, together=False, s_d=S_D)
+        model, adversary,forget= manipulate(model, adversary,test_keys= test_keys,test_dataset=dataset,
+                                            train_dataset=train_dataset, train_keys=train_keys,
+                                            optimizer= optimizer, scheduler=scheduler,
+                                            device= device, args=args, together=False,
+                                            reward_dict=reward_dict,s_d=S_D,arguments=args)
         mean=get_f_mean(model, dataset, test_keys, use_gpu, i=i)
         if mean > max_mean:
             max_mean=mean
-        evaluate_save_adversary(model, adversary, dataset,test_keys, use_gpu, i=i, together= False)
-        model, adversary= manipulate(model, adversary, train_dataset=train_dataset, train_keys=train_keys, optimizer= optimizer, scheduler=scheduler, device= device, args=args, together=True,  s_d=S_D)
+        evaluate_save_adversary(model, adversary, dataset,test_keys,use_gpu,forget=forget ,i=i, together= False)
+        model, adversary, forget= manipulate(model, adversary,test_keys= test_keys, test_dataset=dataset,
+                                            train_dataset=train_dataset, train_keys=train_keys, optimizer= optimizer,
+                                            scheduler=scheduler, device= device, args=args,together=True,
+                                            reward_dict=reward_dict,s_d=S_D,arguments=args)
         mean=get_f_mean(model, dataset, test_keys, use_gpu, i=i)
         if mean > max_mean:
             max_mean=mean
-        evaluate_save_adversary(model, adversary, dataset,test_keys, use_gpu, i=i, together= True)
+        evaluate_save_adversary(model, adversary, dataset,test_keys,use_gpu,forget=forget, i=i, together= True)
         elapsed = round(time.time() - start_time)
         elapsed = str(datetime.timedelta(seconds=elapsed))
         print("Finished. Total elapsed time (h:m:s): {}".format(elapsed))
@@ -470,7 +484,9 @@ def evaluate_save(model, dataset, test_keys, use_gpu, i=1000):
     model.train()
     return mean_fm
 
-def evaluate_save_adversary(model, adversary, dataset, test_keys, use_gpu, i=1000, together= False):
+def evaluate_save_adversary(model, adversary, dataset, test_keys, use_gpu,forget=None, i=1000, together= False):
+    print("jhj")
+
     if together:
         print_save("==> Test Adversary and Model Together")
     else:
@@ -479,6 +495,8 @@ def evaluate_save_adversary(model, adversary, dataset, test_keys, use_gpu, i=100
     print(dataset.keys())
     with torch.no_grad():
         model.eval()
+        adversary.eval()
+        forget.eval()
         fms = []
         eval_metric = 'avg' if args.metric == 'tvsum' else 'max'
 
@@ -496,14 +514,11 @@ def evaluate_save_adversary(model, adversary, dataset, test_keys, use_gpu, i=100
             else:
                 device= torch.device("cpu")
             length= seq.shape[1]
-            seq_updated= complete_video(seq,device=device)
-
-            seq_manipulated= adversary(seq) #(1,seq_len,1024)
-            # print(seq_manipulated.shape)
-            # seq_manipulated= seq_manipulated[:,:length,:]
-            # print(seq_manipulated.shape)
-            # print(seq.shape)
-            probs = model(seq_manipulated) # o
+            # seq_updated= complete_video(seq,device=device)
+            noise= adversary(seq)
+            gen_labels=forget(seq)
+            seq_manipulated= seq+(noise*Bernoulli(gen_labels).sample())
+            probs = model(seq_manipulated) # output shape (1, seq_len, 1) o
             probs = probs.data.cpu().squeeze().numpy()
 
             cps = dataset[key]['change_points'][...]
@@ -534,6 +549,9 @@ def evaluate_save_adversary(model, adversary, dataset, test_keys, use_gpu, i=100
     print_save("Average F-score {:.1%}".format(mean_fm))
     print_save("Iteration Number: "+str(i))
     model.train()
+    adversary.train()
+    forget.train()
+    print("jhjh")
     return mean_fm
 
 if __name__ == '__main__':
