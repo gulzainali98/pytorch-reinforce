@@ -169,7 +169,7 @@ def get_f_mean(model, dataset, test_keys, use_gpu, adversary=None, forget=None,a
 
 def manipulate(m, a, train_dataset=None,test_dataset=None ,train_keys=None,test_keys=None, optimizer=None,
                 scheduler=None, device=None, use_gpu=True, args=None,
-                together=False, reward_dict=None, epoch=120, s_d=None, arguments=None):
+                together=False, reward_dict=None, epoch=60, s_d=None, arguments=None):
 
     if not together:
         print("==> Start training Adversary")
@@ -257,7 +257,7 @@ def manipulate(m, a, train_dataset=None,test_dataset=None ,train_keys=None,test_
                 # partial impartial supervision
 
                 # reward = compute_reward_old(seq, actions,use_gpu=use_gpu)
-                reward= reward+ loss_forget(gen_labels,label_forget)
+                reward= reward- 0.4*(loss_forget(gen_labels,label_forget))
                 expected_reward = log_probs.mean() * (reward - baselines[key])
                 cost -= expected_reward # minimize negative expected reward
                 epis_rewards.append(reward.item())
@@ -272,9 +272,9 @@ def manipulate(m, a, train_dataset=None,test_dataset=None ,train_keys=None,test_
         # if (epoch+1)%100==0:
         #     evaluate_save(model, dataset, test_keys, use_gpu, i=i)
         epoch_reward = np.mean([reward_writers[key][epoch] for key in train_keys])
-        mean=get_f_mean(model, test_dataset, test_keys, use_gpu, adversary=adversary,forget=f,args=arguments)
-        if mean > max_mean:
-            max_mean=mean
+        # mean=get_f_mean(model, test_dataset, test_keys, use_gpu, adversary=adversary,forget=f,args=arguments)
+        # if mean > max_mean:
+        #     max_mean=mean
         # epoch_nll_reward= np.mean([reward_writers_nll[key][epoch] for key in train_keys])
         print("Manipulation epoch {}/{}\t reward {}\t nll_reward {}\t".format(epoch+1, args.max_epoch, epoch_reward, 0))
     print_save("="*20)

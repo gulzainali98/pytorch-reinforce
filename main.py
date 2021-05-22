@@ -240,7 +240,7 @@ def main():
         count=0
         max_mean=0
         # for epoch in range(start_epoch, args.max_epoch):
-        for epoch in range(start_epoch, 250):
+        for epoch in range(start_epoch, 60):
 
             idxs = np.arange(len(train_keys))
             np.random.shuffle(idxs) # shuffle indices
@@ -293,10 +293,10 @@ def main():
                 reward_writers[key].append(np.mean(epis_rewards))
                 reward_writers_nll[key].append(np.mean(epis_reward_nll))
 
-                mean=get_f_mean(model, dataset, test_keys, use_gpu, i=i)
-                if mean > max_mean:
-                    max_mean=mean
-            if (epoch+1)%100==0:
+                # mean=get_f_mean(model, dataset, test_keys, use_gpu, i=i)
+                # if mean > max_mean:
+                    # max_mean=mean
+            if (epoch+1)%30==0:
                 evaluate_save(model, dataset, test_keys, use_gpu, i=i)
             epoch_reward = np.mean([reward_writers[key][epoch] for key in train_keys])
             epoch_nll_reward= np.mean([reward_writers_nll[key][epoch] for key in train_keys])

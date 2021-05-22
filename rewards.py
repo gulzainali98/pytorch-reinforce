@@ -78,7 +78,7 @@ def compute_manipulate_reward(seq, actions, disc, loss=None, label=None, activat
     output = disc(summary,src_mask)
     # print(activation(output))
     # hj()
-    nll= loss(output, label)
+    nll= -1*loss(output, label)
 
 
 
@@ -148,7 +148,7 @@ def compute_reward(seq, actions, disc, loss=None, label=None, activation=None,ig
     output = disc(summary,src_mask)
     # print(activation(output))
     # hj()
-    nll= loss(output, label)
+    nll= -1*loss(output, label)
 
 
 
@@ -181,7 +181,7 @@ def compute_reward(seq, actions, disc, loss=None, label=None, activation=None,ig
 
     # combine the two rewards
     # reward=nll
-    reward = (((reward_div + reward_rep) * 0.5))*0.3+ (0.7*nll)
+    reward = (((reward_div + reward_rep) * 0.5))*0.7+ (0.3*nll)
     # reward=0*((reward_div + reward_rep) * 0.5)
     # reward= (reward_div + reward_rep) * 0.5
 
