@@ -4,7 +4,7 @@ from torch.nn import functional as F
 import math
 import numpy as np
 
-__all__ = ['DSN']
+__all__ = ['DSN','ensemble_DSN', 'base_DSN']
 
 ntokens = 50 # the size of vocabulary
 emsize = 1024 # embedding dimension
@@ -29,6 +29,72 @@ class DSN(nn.Module):
         h, _ = self.rnn(x)
         p = F.sigmoid(self.fc(h))
         return p
+
+
+class base_DSN(nn.Module):
+    """Deep Summarization Network"""
+    def __init__(self, in_dim=1024, hid_dim=256, num_layers=1, cell='lstm'):
+        super(base_DSN, self).__init__()
+        assert cell in ['lstm', 'gru'], "cell must be either 'lstm' or 'gru'"
+        if cell == 'lstm':
+            self.rnn = nn.LSTM(in_dim, hid_dim, num_layers=num_layers, bidirectional=True, batch_first=True)
+        else:
+            self.rnn = nn.GRU(in_dim, hid_dim, num_layers=num_layers, bidirectional=True, batch_first=True)
+        self.fc = nn.Linear(hid_dim*2, 1)
+
+    def forward(self, x):
+        h, _ = self.rnn(x)
+        f= self.fc(h)
+        p = F.sigmoid(f)
+        return p
+
+
+
+class ensemble_DSN:
+    def __init__(self, in_dim=1024, hid_dim=256, num_layers=1, cell='lstm',num_networks=3):
+        print("doing t")
+        self.num_networks=num_networks
+        assert cell in ['lstm', 'gru'], "cell must be either 'lstm' or 'gru'"
+        self.arr=[]
+        self.num_networks=num_networks
+        for i in range(num_networks):
+            if cell == 'lstm':
+                self.arr.append(base_DSN(cell='lstm'))
+            else:
+                self.arr.append(base_DSN(cell='gru'))
+    def eval(self):
+        for i in range(self.num_networks):
+            self.arr[i].eval()
+    def train(self, mode=True):
+        print("custom train")
+        for i in range(self.num_networks):
+            self.arr[i].train()
+    def to(self, device):
+        for i in range(self.num_networks):
+            self.arr[i]=self.arr[i].to(device)
+        return self
+    def __call__(self, x, num_network, eval=False, eval_network=None):
+        if eval_network is not None:
+            network= self.arr[eval_network]
+
+            # h, _ = self.arr(i)(x[i])
+            p = network(x)
+
+            return p
+        elif eval:
+            p=torch.zeros((x.shape[0],x.shape[1],1))
+            for network in range(len(self.arr)):
+                p= self.arr[network](x)
+            p= p/self.num_networks
+            return p
+
+        else:
+            network= self.arr[num_network]
+
+            # h, _ = self.arr(i)(x[i])
+            p= network(x)
+
+            return p
 #
 #
 # class PositionalEncoding(nn.Module):

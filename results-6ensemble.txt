@@ -1,0 +1,1106 @@
+==> Test 
+---  -------  -------
+No.  Video    F-score
+1    video_1  60.0%
+2    video_2  22.7%
+3    video_3  24.3%
+4    video_4  53.6%
+5    video_5  33.6%
+---  -------  ------- 
+Average F-score 38.8% 
+Iteration Number: 0 
+Network 0 F_MEAN: 0.43185209169979694 
+Network 1 F_MEAN: 0.41136371362944957 
+Network 2 F_MEAN: 0.4085097878034637 
+Network 3 F_MEAN: 0.40794503284925776 
+Network 4 F_MEAN: 0.4250213153463022 
+Network 5 F_MEAN: 0.3706963243083629 
+==> Test 
+---  -------  -------
+No.  Video    F-score
+1    video_1  60.0%
+2    video_2  22.7%
+3    video_3  24.3%
+4    video_4  53.6%
+5    video_5  33.6%
+---  -------  ------- 
+Average F-score 38.8% 
+Iteration Number: 0 
+Network 0 F_MEAN: 0.43295077805302196 
+Network 1 F_MEAN: 0.433729129996647 
+Network 2 F_MEAN: 0.44561794280554556 
+Network 3 F_MEAN: 0.449531506147322 
+Network 4 F_MEAN: 0.4250213153463022 
+Network 5 F_MEAN: 0.3706963243083629 
+==> Test 
+---  -------  -------
+No.  Video    F-score
+1    video_1  60.0%
+2    video_2  27.4%
+3    video_3  24.3%
+4    video_4  53.6%
+5    video_5  33.6%
+---  -------  ------- 
+Average F-score 39.8% 
+Iteration Number: 0 
+Network 0 F_MEAN: 0.43295077805302196 
+Network 1 F_MEAN: 0.43265018554235324 
+Network 2 F_MEAN: 0.44561794280554556 
+Network 3 F_MEAN: 0.449531506147322 
+Network 4 F_MEAN: 0.4250213153463022 
+Network 5 F_MEAN: 0.37050800039120174 
+==> Test 
+---  -------  -------
+No.  Video    F-score
+1    video_1  60.0%
+2    video_2  28.8%
+3    video_3  24.3%
+4    video_4  53.6%
+5    video_5  33.6%
+---  -------  ------- 
+Average F-score 40.0% 
+Iteration Number: 0 
+Network 0 F_MEAN: 0.43295077805302196 
+Network 1 F_MEAN: 0.43265018554235324 
+Network 2 F_MEAN: 0.44561794280554556 
+Network 3 F_MEAN: 0.449531506147322 
+Network 4 F_MEAN: 0.4250213153463022 
+Network 5 F_MEAN: 0.37002279903265217 
+==> Test 
+---  -------  -------
+No.  Video    F-score
+1    video_1  60.0%
+2    video_2  28.8%
+3    video_3  24.3%
+4    video_4  53.6%
+5    video_5  33.6%
+---  -------  ------- 
+Average F-score 40.0% 
+Iteration Number: 0 
+Network 0 F_MEAN: 0.43295077805302196 
+Network 1 F_MEAN: 0.43265018554235324 
+Network 2 F_MEAN: 0.44561794280554556 
+Network 3 F_MEAN: 0.44985803131637186 
+Network 4 F_MEAN: 0.4250213153463022 
+Network 5 F_MEAN: 0.37002279903265217 
+==> Test 
+---  -------  -------
+No.  Video    F-score
+1    video_1  60.0%
+2    video_2  28.8%
+3    video_3  24.3%
+4    video_4  53.6%
+5    video_5  33.6%
+---  -------  ------- 
+Average F-score 40.0% 
+Iteration Number: 0 
+Network 0 F_MEAN: 0.43295077805302196 
+Network 1 F_MEAN: 0.43265018554235324 
+Network 2 F_MEAN: 0.44561794280554556 
+Network 3 F_MEAN: 0.44985803131637186 
+Network 4 F_MEAN: 0.4109140788317758 
+Network 5 F_MEAN: 0.37002279903265217 
+==> Test 
+---  -------  -------
+No.  Video    F-score
+1    video_1  60.0%
+2    video_2  28.8%
+3    video_3  45.8%
+4    video_4  53.6%
+5    video_5  33.6%
+---  -------  ------- 
+Average F-score 44.4% 
+Iteration Number: 0 
+Network 0 F_MEAN: 0.43295077805302196 
+Network 1 F_MEAN: 0.43290398191305834 
+Network 2 F_MEAN: 0.44561794280554556 
+Network 3 F_MEAN: 0.44985803131637186 
+Network 4 F_MEAN: 0.4109140788317758 
+Network 5 F_MEAN: 0.3875165955583591 
+==> Test 
+---  -------  -------
+No.  Video    F-score
+1    video_1  60.0%
+2    video_2  28.8%
+3    video_3  45.8%
+4    video_4  53.6%
+5    video_5  33.6%
+---  -------  ------- 
+Average F-score 44.4% 
+Iteration Number: 0 
+Network 0 F_MEAN: 0.43295077805302196 
+Network 1 F_MEAN: 0.43290398191305834 
+Network 2 F_MEAN: 0.44561794280554556 
+Network 3 F_MEAN: 0.44985803131637186 
+Network 4 F_MEAN: 0.4109140788317758 
+Network 5 F_MEAN: 0.3875165955583591 
+==> Test 
+---  -------  -------
+No.  Video    F-score
+1    video_1  60.0%
+2    video_2  28.8%
+3    video_3  45.8%
+4    video_4  53.6%
+5    video_5  33.6%
+---  -------  ------- 
+Average F-score 44.4% 
+Iteration Number: 0 
+Network 0 F_MEAN: 0.43295077805302196 
+Network 1 F_MEAN: 0.43290398191305834 
+Network 2 F_MEAN: 0.44561794280554556 
+Network 3 F_MEAN: 0.4505216552401466 
+Network 4 F_MEAN: 0.4109140788317758 
+Network 5 F_MEAN: 0.3875165955583591 
+==> Test 
+---  -------  -------
+No.  Video    F-score
+1    video_1  60.0%
+2    video_2  28.8%
+3    video_3  46.8%
+4    video_4  53.6%
+5    video_5  33.6%
+---  -------  ------- 
+Average F-score 44.6% 
+Iteration Number: 0 
+Network 0 F_MEAN: 0.43295077805302196 
+Network 1 F_MEAN: 0.43290398191305834 
+Network 2 F_MEAN: 0.44561794280554556 
+Network 3 F_MEAN: 0.4505216552401466 
+Network 4 F_MEAN: 0.4632995936876873 
+Network 5 F_MEAN: 0.3875165955583591 
+==> Test 
+---  -------  -------
+No.  Video    F-score
+1    video_1  60.0%
+2    video_2  28.8%
+3    video_3  46.8%
+4    video_4  53.6%
+5    video_5  33.6%
+---  -------  ------- 
+Average F-score 44.6% 
+Iteration Number: 0 
+Network 0 F_MEAN: 0.43295077805302196 
+Network 1 F_MEAN: 0.43290398191305834 
+Network 2 F_MEAN: 0.44561794280554556 
+Network 3 F_MEAN: 0.4505216552401466 
+Network 4 F_MEAN: 0.4632995936876873 
+Network 5 F_MEAN: 0.3875165955583591 
+==> Test 
+---  -------  -------
+No.  Video    F-score
+1    video_1  60.0%
+2    video_2  28.8%
+3    video_3  46.8%
+4    video_4  53.6%
+5    video_5  38.7%
+---  -------  ------- 
+Average F-score 45.6% 
+Iteration Number: 0 
+Network 0 F_MEAN: 0.4060929530720269 
+Network 1 F_MEAN: 0.43290398191305834 
+Network 2 F_MEAN: 0.44561794280554556 
+Network 3 F_MEAN: 0.4505216552401466 
+Network 4 F_MEAN: 0.4632995936876873 
+Network 5 F_MEAN: 0.3881802194821338 
+==> Test 
+---  -------  -------
+No.  Video    F-score
+1    video_1  60.0%
+2    video_2  28.8%
+3    video_3  46.8%
+4    video_4  41.5%
+5    video_5  36.5%
+---  -------  ------- 
+Average F-score 42.7% 
+Iteration Number: 0 
+Network 0 F_MEAN: 0.4031267982768189 
+Network 1 F_MEAN: 0.43290398191305834 
+Network 2 F_MEAN: 0.44561794280554556 
+Network 3 F_MEAN: 0.4505216552401466 
+Network 4 F_MEAN: 0.4526666719604308 
+Network 5 F_MEAN: 0.38747269774959936 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_6   21.0%
+2    video_7   28.9%
+3    video_8   59.6%
+4    video_9   43.3%
+5    video_10  26.6%
+---  --------  ------- 
+Average F-score 35.9% 
+Iteration Number: 1 
+Network 0 F_MEAN: 0.3644798248974356 
+Network 1 F_MEAN: 0.3835117076674878 
+Network 2 F_MEAN: 0.3541102204329364 
+Network 3 F_MEAN: 0.31385966632193407 
+Network 4 F_MEAN: 0.3332109220752705 
+Network 5 F_MEAN: 0.34065644934368555 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_6   21.0%
+2    video_7   28.9%
+3    video_8   59.6%
+4    video_9   44.1%
+5    video_10  27.7%
+---  --------  ------- 
+Average F-score 36.3% 
+Iteration Number: 1 
+Network 0 F_MEAN: 0.3554460010833219 
+Network 1 F_MEAN: 0.3835117076674878 
+Network 2 F_MEAN: 0.3541102204329364 
+Network 3 F_MEAN: 0.31385966632193407 
+Network 4 F_MEAN: 0.3332109220752705 
+Network 5 F_MEAN: 0.34280177626433017 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_6   21.0%
+2    video_7   28.9%
+3    video_8   59.6%
+4    video_9   44.1%
+5    video_10  26.6%
+---  --------  ------- 
+Average F-score 36.1% 
+Iteration Number: 1 
+Network 0 F_MEAN: 0.3554460010833219 
+Network 1 F_MEAN: 0.3835117076674878 
+Network 2 F_MEAN: 0.3541102204329364 
+Network 3 F_MEAN: 0.31385966632193407 
+Network 4 F_MEAN: 0.3332109220752705 
+Network 5 F_MEAN: 0.3341077440871619 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_6   21.0%
+2    video_7   27.7%
+3    video_8   59.6%
+4    video_9   44.1%
+5    video_10  26.6%
+---  --------  ------- 
+Average F-score 35.8% 
+Iteration Number: 1 
+Network 0 F_MEAN: 0.3331348977021923 
+Network 1 F_MEAN: 0.3835117076674878 
+Network 2 F_MEAN: 0.3541102204329364 
+Network 3 F_MEAN: 0.31894482145539116 
+Network 4 F_MEAN: 0.3332109220752705 
+Network 5 F_MEAN: 0.3341077440871619 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_6   21.0%
+2    video_7   27.7%
+3    video_8   59.6%
+4    video_9   44.1%
+5    video_10  27.7%
+---  --------  ------- 
+Average F-score 36.0% 
+Iteration Number: 1 
+Network 0 F_MEAN: 0.3331348977021923 
+Network 1 F_MEAN: 0.3835117076674878 
+Network 2 F_MEAN: 0.3541102204329364 
+Network 3 F_MEAN: 0.31894482145539116 
+Network 4 F_MEAN: 0.3332109220752705 
+Network 5 F_MEAN: 0.34280177626433017 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_6   21.0%
+2    video_7   27.7%
+3    video_8   59.6%
+4    video_9   44.1%
+5    video_10  27.7%
+---  --------  ------- 
+Average F-score 36.0% 
+Iteration Number: 1 
+Network 0 F_MEAN: 0.3554460010833219 
+Network 1 F_MEAN: 0.3835117076674878 
+Network 2 F_MEAN: 0.3541102204329364 
+Network 3 F_MEAN: 0.31894482145539116 
+Network 4 F_MEAN: 0.3332109220752705 
+Network 5 F_MEAN: 0.34280177626433017 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_6   21.0%
+2    video_7   27.7%
+3    video_8   59.6%
+4    video_9   44.1%
+5    video_10  26.6%
+---  --------  ------- 
+Average F-score 35.8% 
+Iteration Number: 1 
+Network 0 F_MEAN: 0.3331348977021923 
+Network 1 F_MEAN: 0.3834425884948267 
+Network 2 F_MEAN: 0.3541102204329364 
+Network 3 F_MEAN: 0.31894482145539116 
+Network 4 F_MEAN: 0.3332109220752705 
+Network 5 F_MEAN: 0.3341077440871619 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_6   21.0%
+2    video_7   27.7%
+3    video_8   59.6%
+4    video_9   44.1%
+5    video_10  26.6%
+---  --------  ------- 
+Average F-score 35.8% 
+Iteration Number: 1 
+Network 0 F_MEAN: 0.3331348977021923 
+Network 1 F_MEAN: 0.3834425884948267 
+Network 2 F_MEAN: 0.3541102204329364 
+Network 3 F_MEAN: 0.31894482145539116 
+Network 4 F_MEAN: 0.3332109220752705 
+Network 5 F_MEAN: 0.3341077440871619 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_6   21.0%
+2    video_7   27.7%
+3    video_8   59.6%
+4    video_9   44.1%
+5    video_10  26.6%
+---  --------  ------- 
+Average F-score 35.8% 
+Iteration Number: 1 
+Network 0 F_MEAN: 0.3331348977021923 
+Network 1 F_MEAN: 0.3834425884948267 
+Network 2 F_MEAN: 0.3541102204329364 
+Network 3 F_MEAN: 0.31894482145539116 
+Network 4 F_MEAN: 0.3332109220752705 
+Network 5 F_MEAN: 0.3341077440871619 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_6   21.0%
+2    video_7   27.7%
+3    video_8   59.6%
+4    video_9   44.1%
+5    video_10  23.1%
+---  --------  ------- 
+Average F-score 35.1% 
+Iteration Number: 1 
+Network 0 F_MEAN: 0.32444396202272985 
+Network 1 F_MEAN: 0.3834425884948267 
+Network 2 F_MEAN: 0.3541102204329364 
+Network 3 F_MEAN: 0.31894482145539116 
+Network 4 F_MEAN: 0.3332109220752705 
+Network 5 F_MEAN: 0.3341077440871619 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_6   21.0%
+2    video_7   27.7%
+3    video_8   59.6%
+4    video_9   40.3%
+5    video_10  23.1%
+---  --------  ------- 
+Average F-score 34.3% 
+Iteration Number: 1 
+Network 0 F_MEAN: 0.32444396202272985 
+Network 1 F_MEAN: 0.3834425884948267 
+Network 2 F_MEAN: 0.3541102204329364 
+Network 3 F_MEAN: 0.31894482145539116 
+Network 4 F_MEAN: 0.3332109220752705 
+Network 5 F_MEAN: 0.354769484574736 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_6   21.0%
+2    video_7   27.7%
+3    video_8   59.6%
+4    video_9   40.3%
+5    video_10  23.1%
+---  --------  ------- 
+Average F-score 34.3% 
+Iteration Number: 1 
+Network 0 F_MEAN: 0.32444396202272985 
+Network 1 F_MEAN: 0.3834425884948267 
+Network 2 F_MEAN: 0.3541102204329364 
+Network 3 F_MEAN: 0.31894482145539116 
+Network 4 F_MEAN: 0.3332109220752705 
+Network 5 F_MEAN: 0.354769484574736 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_6   21.0%
+2    video_7   27.7%
+3    video_8   54.7%
+4    video_9   40.3%
+5    video_10  23.1%
+---  --------  ------- 
+Average F-score 33.4% 
+Iteration Number: 1 
+Network 0 F_MEAN: 0.32444396202272985 
+Network 1 F_MEAN: 0.3834425884948267 
+Network 2 F_MEAN: 0.34665848249798553 
+Network 3 F_MEAN: 0.31894482145539116 
+Network 4 F_MEAN: 0.3423191563865855 
+Network 5 F_MEAN: 0.354769484574736 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_11  60.2%
+2    video_12  0.0%
+3    video_13  17.4%
+4    video_14  36.5%
+5    video_15  59.8%
+---  --------  ------- 
+Average F-score 34.8% 
+Iteration Number: 2 
+Network 0 F_MEAN: 0.4424756599300844 
+Network 1 F_MEAN: 0.3978087062692162 
+Network 2 F_MEAN: 0.3937092175625631 
+Network 3 F_MEAN: 0.43957529170449117 
+Network 4 F_MEAN: 0.40285490787721406 
+Network 5 F_MEAN: 0.40212357379614644 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_11  60.2%
+2    video_12  0.0%
+3    video_13  17.4%
+4    video_14  19.0%
+5    video_15  59.8%
+---  --------  ------- 
+Average F-score 31.3% 
+Iteration Number: 2 
+Network 0 F_MEAN: 0.4400729465600787 
+Network 1 F_MEAN: 0.3978087062692162 
+Network 2 F_MEAN: 0.3937092175625631 
+Network 3 F_MEAN: 0.4558507868586378 
+Network 4 F_MEAN: 0.40285490787721406 
+Network 5 F_MEAN: 0.40409282807966945 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_11  60.2%
+2    video_12  0.0%
+3    video_13  17.4%
+4    video_14  40.7%
+5    video_15  59.8%
+---  --------  ------- 
+Average F-score 35.6% 
+Iteration Number: 2 
+Network 0 F_MEAN: 0.4400729465600787 
+Network 1 F_MEAN: 0.3978087062692162 
+Network 2 F_MEAN: 0.3937092175625631 
+Network 3 F_MEAN: 0.43957529170449117 
+Network 4 F_MEAN: 0.45618824120610296 
+Network 5 F_MEAN: 0.40409282807966945 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_11  60.2%
+2    video_12  0.0%
+3    video_13  17.4%
+4    video_14  19.0%
+5    video_15  59.8%
+---  --------  ------- 
+Average F-score 31.3% 
+Iteration Number: 2 
+Network 0 F_MEAN: 0.4400729465600787 
+Network 1 F_MEAN: 0.3978087062692162 
+Network 2 F_MEAN: 0.3937092175625631 
+Network 3 F_MEAN: 0.4558507868586378 
+Network 4 F_MEAN: 0.45618824120610296 
+Network 5 F_MEAN: 0.40409282807966945 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_11  60.2%
+2    video_12  0.0%
+3    video_13  17.4%
+4    video_14  19.0%
+5    video_15  55.2%
+---  --------  ------- 
+Average F-score 30.4% 
+Iteration Number: 2 
+Network 0 F_MEAN: 0.4400729465600787 
+Network 1 F_MEAN: 0.3978087062692162 
+Network 2 F_MEAN: 0.3937092175625631 
+Network 3 F_MEAN: 0.4561738819864791 
+Network 4 F_MEAN: 0.44865534346645 
+Network 5 F_MEAN: 0.40212357379614644 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_11  60.2%
+2    video_12  0.0%
+3    video_13  17.4%
+4    video_14  18.9%
+5    video_15  55.2%
+---  --------  ------- 
+Average F-score 30.3% 
+Iteration Number: 2 
+Network 0 F_MEAN: 0.439593550395262 
+Network 1 F_MEAN: 0.3978087062692162 
+Network 2 F_MEAN: 0.415243638919167 
+Network 3 F_MEAN: 0.4561738819864791 
+Network 4 F_MEAN: 0.44865534346645 
+Network 5 F_MEAN: 0.40409282807966945 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_11  60.2%
+2    video_12  0.0%
+3    video_13  17.4%
+4    video_14  18.9%
+5    video_15  55.2%
+---  --------  ------- 
+Average F-score 30.3% 
+Iteration Number: 2 
+Network 0 F_MEAN: 0.439593550395262 
+Network 1 F_MEAN: 0.40007352108815414 
+Network 2 F_MEAN: 0.415243638919167 
+Network 3 F_MEAN: 0.4561738819864791 
+Network 4 F_MEAN: 0.44865534346645 
+Network 5 F_MEAN: 0.40409282807966945 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_11  60.2%
+2    video_12  0.0%
+3    video_13  17.4%
+4    video_14  18.9%
+5    video_15  59.8%
+---  --------  ------- 
+Average F-score 31.2% 
+Iteration Number: 2 
+Network 0 F_MEAN: 0.439593550395262 
+Network 1 F_MEAN: 0.40007352108815414 
+Network 2 F_MEAN: 0.415243638919167 
+Network 3 F_MEAN: 0.4558507868586378 
+Network 4 F_MEAN: 0.44865534346645 
+Network 5 F_MEAN: 0.40409282807966945 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_11  60.2%
+2    video_12  0.0%
+3    video_13  17.4%
+4    video_14  18.9%
+5    video_15  59.8%
+---  --------  ------- 
+Average F-score 31.2% 
+Iteration Number: 2 
+Network 0 F_MEAN: 0.439593550395262 
+Network 1 F_MEAN: 0.40007352108815414 
+Network 2 F_MEAN: 0.415243638919167 
+Network 3 F_MEAN: 0.4558507868586378 
+Network 4 F_MEAN: 0.44865534346645 
+Network 5 F_MEAN: 0.40409282807966945 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_11  60.2%
+2    video_12  0.0%
+3    video_13  17.4%
+4    video_14  18.9%
+5    video_15  55.1%
+---  --------  ------- 
+Average F-score 30.3% 
+Iteration Number: 2 
+Network 0 F_MEAN: 0.439593550395262 
+Network 1 F_MEAN: 0.3925628273708626 
+Network 2 F_MEAN: 0.415243638919167 
+Network 3 F_MEAN: 0.45654166250207745 
+Network 4 F_MEAN: 0.44833224833860863 
+Network 5 F_MEAN: 0.40407914872707706 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_11  60.2%
+2    video_12  0.0%
+3    video_13  17.4%
+4    video_14  18.9%
+5    video_15  55.1%
+---  --------  ------- 
+Average F-score 30.3% 
+Iteration Number: 2 
+Network 0 F_MEAN: 0.439593550395262 
+Network 1 F_MEAN: 0.3925628273708626 
+Network 2 F_MEAN: 0.415243638919167 
+Network 3 F_MEAN: 0.45654166250207745 
+Network 4 F_MEAN: 0.44833224833860863 
+Network 5 F_MEAN: 0.40407914872707706 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_11  60.2%
+2    video_12  0.0%
+3    video_13  37.3%
+4    video_14  18.9%
+5    video_15  55.1%
+---  --------  ------- 
+Average F-score 34.3% 
+Iteration Number: 2 
+Network 0 F_MEAN: 0.4610880787562904 
+Network 1 F_MEAN: 0.3925628273708626 
+Network 2 F_MEAN: 0.415243638919167 
+Network 3 F_MEAN: 0.45654166250207745 
+Network 4 F_MEAN: 0.44262786998756753 
+Network 5 F_MEAN: 0.40407914872707706 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_11  60.2%
+2    video_12  0.0%
+3    video_13  37.3%
+4    video_14  18.9%
+5    video_15  55.1%
+---  --------  ------- 
+Average F-score 34.3% 
+Iteration Number: 2 
+Network 0 F_MEAN: 0.4610880787562904 
+Network 1 F_MEAN: 0.3925628273708626 
+Network 2 F_MEAN: 0.415243638919167 
+Network 3 F_MEAN: 0.45654166250207745 
+Network 4 F_MEAN: 0.44262786998756753 
+Network 5 F_MEAN: 0.40407914872707706 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_16  34.9%
+2    video_17  20.7%
+3    video_18  60.2%
+4    video_19  36.0%
+5    video_20  61.5%
+---  --------  ------- 
+Average F-score 42.7% 
+Iteration Number: 3 
+Network 0 F_MEAN: 0.3783632006724454 
+Network 1 F_MEAN: 0.4429532221114806 
+Network 2 F_MEAN: 0.35250237736640677 
+Network 3 F_MEAN: 0.31649964316374907 
+Network 4 F_MEAN: 0.4357291361427242 
+Network 5 F_MEAN: 0.39591611388600323 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_16  34.9%
+2    video_17  20.7%
+3    video_18  60.2%
+4    video_19  36.0%
+5    video_20  61.5%
+---  --------  ------- 
+Average F-score 42.7% 
+Iteration Number: 3 
+Network 0 F_MEAN: 0.3783632006724454 
+Network 1 F_MEAN: 0.4812043568564827 
+Network 2 F_MEAN: 0.41834353551276793 
+Network 3 F_MEAN: 0.3881903608389569 
+Network 4 F_MEAN: 0.3925810096648966 
+Network 5 F_MEAN: 0.39591611388600323 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_16  34.9%
+2    video_17  19.9%
+3    video_18  60.2%
+4    video_19  36.0%
+5    video_20  43.8%
+---  --------  ------- 
+Average F-score 39.0% 
+Iteration Number: 3 
+Network 0 F_MEAN: 0.3783632006724454 
+Network 1 F_MEAN: 0.4812043568564827 
+Network 2 F_MEAN: 0.41829350966259116 
+Network 3 F_MEAN: 0.3881903608389569 
+Network 4 F_MEAN: 0.38068048580298136 
+Network 5 F_MEAN: 0.3644846491593464 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_16  34.9%
+2    video_17  20.7%
+3    video_18  60.2%
+4    video_19  36.0%
+5    video_20  43.8%
+---  --------  ------- 
+Average F-score 39.1% 
+Iteration Number: 3 
+Network 0 F_MEAN: 0.36488930158142285 
+Network 1 F_MEAN: 0.4812043568564827 
+Network 2 F_MEAN: 0.35250237736640677 
+Network 3 F_MEAN: 0.3881903608389569 
+Network 4 F_MEAN: 0.3765416270284723 
+Network 5 F_MEAN: 0.3644846491593464 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_16  34.9%
+2    video_17  20.7%
+3    video_18  60.2%
+4    video_19  36.0%
+5    video_20  43.8%
+---  --------  ------- 
+Average F-score 39.1% 
+Iteration Number: 3 
+Network 0 F_MEAN: 0.38252085574877925 
+Network 1 F_MEAN: 0.4812043568564827 
+Network 2 F_MEAN: 0.35250237736640677 
+Network 3 F_MEAN: 0.3881903608389569 
+Network 4 F_MEAN: 0.3765416270284723 
+Network 5 F_MEAN: 0.3644846491593464 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_16  34.9%
+2    video_17  20.7%
+3    video_18  60.2%
+4    video_19  36.0%
+5    video_20  61.5%
+---  --------  ------- 
+Average F-score 42.7% 
+Iteration Number: 3 
+Network 0 F_MEAN: 0.3783632006724454 
+Network 1 F_MEAN: 0.4812043568564827 
+Network 2 F_MEAN: 0.35250237736640677 
+Network 3 F_MEAN: 0.3881903608389569 
+Network 4 F_MEAN: 0.3765416270284723 
+Network 5 F_MEAN: 0.3996778722699054 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_16  34.9%
+2    video_17  24.6%
+3    video_18  60.2%
+4    video_19  36.0%
+5    video_20  61.5%
+---  --------  ------- 
+Average F-score 43.4% 
+Iteration Number: 3 
+Network 0 F_MEAN: 0.3783632006724454 
+Network 1 F_MEAN: 0.4756932169072349 
+Network 2 F_MEAN: 0.35250237736640677 
+Network 3 F_MEAN: 0.3881903608389569 
+Network 4 F_MEAN: 0.3765416270284723 
+Network 5 F_MEAN: 0.3996778722699054 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_16  34.9%
+2    video_17  24.8%
+3    video_18  60.2%
+4    video_19  36.0%
+5    video_20  61.5%
+---  --------  ------- 
+Average F-score 43.5% 
+Iteration Number: 3 
+Network 0 F_MEAN: 0.3783632006724454 
+Network 1 F_MEAN: 0.47178884637277624 
+Network 2 F_MEAN: 0.35245235151623 
+Network 3 F_MEAN: 0.4619644989408986 
+Network 4 F_MEAN: 0.3765416270284723 
+Network 5 F_MEAN: 0.3996778722699054 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_16  34.9%
+2    video_17  24.8%
+3    video_18  60.2%
+4    video_19  36.0%
+5    video_20  61.5%
+---  --------  ------- 
+Average F-score 43.5% 
+Iteration Number: 3 
+Network 0 F_MEAN: 0.3783632006724454 
+Network 1 F_MEAN: 0.47178884637277624 
+Network 2 F_MEAN: 0.35245235151623 
+Network 3 F_MEAN: 0.4619644989408986 
+Network 4 F_MEAN: 0.3765416270284723 
+Network 5 F_MEAN: 0.40021543463251164 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_16  34.9%
+2    video_17  24.8%
+3    video_18  60.2%
+4    video_19  36.0%
+5    video_20  61.5%
+---  --------  ------- 
+Average F-score 43.5% 
+Iteration Number: 3 
+Network 0 F_MEAN: 0.3783632006724454 
+Network 1 F_MEAN: 0.47727410128205516 
+Network 2 F_MEAN: 0.35245235151623 
+Network 3 F_MEAN: 0.4619644989408986 
+Network 4 F_MEAN: 0.3765416270284723 
+Network 5 F_MEAN: 0.39997822120164556 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_16  34.9%
+2    video_17  23.7%
+3    video_18  60.2%
+4    video_19  36.0%
+5    video_20  61.5%
+---  --------  ------- 
+Average F-score 43.3% 
+Iteration Number: 3 
+Network 0 F_MEAN: 0.3783632006724454 
+Network 1 F_MEAN: 0.47727410128205516 
+Network 2 F_MEAN: 0.45014098868768493 
+Network 3 F_MEAN: 0.4619644989408986 
+Network 4 F_MEAN: 0.38068048580298136 
+Network 5 F_MEAN: 0.39997822120164556 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_16  34.9%
+2    video_17  23.7%
+3    video_18  60.2%
+4    video_19  36.0%
+5    video_20  56.2%
+---  --------  ------- 
+Average F-score 42.2% 
+Iteration Number: 3 
+Network 0 F_MEAN: 0.3783632006724454 
+Network 1 F_MEAN: 0.4778221944987148 
+Network 2 F_MEAN: 0.45014098868768493 
+Network 3 F_MEAN: 0.4619644989408986 
+Network 4 F_MEAN: 0.38068048580298136 
+Network 5 F_MEAN: 0.39997822120164556 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_16  34.9%
+2    video_17  23.7%
+3    video_18  60.2%
+4    video_19  36.0%
+5    video_20  56.2%
+---  --------  ------- 
+Average F-score 42.2% 
+Iteration Number: 3 
+Network 0 F_MEAN: 0.3783632006724454 
+Network 1 F_MEAN: 0.4778221944987148 
+Network 2 F_MEAN: 0.45014098868768493 
+Network 3 F_MEAN: 0.4619368639871668 
+Network 4 F_MEAN: 0.38068048580298136 
+Network 5 F_MEAN: 0.39997822120164556 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_21  19.0%
+2    video_22  35.6%
+3    video_23  60.2%
+4    video_24  29.0%
+5    video_25  63.5%
+---  --------  ------- 
+Average F-score 41.5% 
+Iteration Number: 4 
+Network 0 F_MEAN: 0.4055453779746518 
+Network 1 F_MEAN: 0.43732459170921956 
+Network 2 F_MEAN: 0.4574038518878053 
+Network 3 F_MEAN: 0.442481858752938 
+Network 4 F_MEAN: 0.4381876603267415 
+Network 5 F_MEAN: 0.4249651596472056 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_21  22.5%
+2    video_22  35.6%
+3    video_23  60.2%
+4    video_24  26.4%
+5    video_25  63.5%
+---  --------  ------- 
+Average F-score 41.7% 
+Iteration Number: 4 
+Network 0 F_MEAN: 0.44575828834413667 
+Network 1 F_MEAN: 0.42842171051004313 
+Network 2 F_MEAN: 0.4574038518878053 
+Network 3 F_MEAN: 0.4387197373866895 
+Network 4 F_MEAN: 0.4381876603267415 
+Network 5 F_MEAN: 0.4249651596472056 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_21  22.5%
+2    video_22  34.1%
+3    video_23  66.2%
+4    video_24  26.4%
+5    video_25  63.5%
+---  --------  ------- 
+Average F-score 42.6% 
+Iteration Number: 4 
+Network 0 F_MEAN: 0.40304946962821314 
+Network 1 F_MEAN: 0.43522647112944685 
+Network 2 F_MEAN: 0.4574038518878053 
+Network 3 F_MEAN: 0.4454242828411451 
+Network 4 F_MEAN: 0.4381876603267415 
+Network 5 F_MEAN: 0.4249651596472056 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_21  22.5%
+2    video_22  36.7%
+3    video_23  60.2%
+4    video_24  26.4%
+5    video_25  63.5%
+---  --------  ------- 
+Average F-score 41.9% 
+Iteration Number: 4 
+Network 0 F_MEAN: 0.4432623799976982 
+Network 1 F_MEAN: 0.42843759329291464 
+Network 2 F_MEAN: 0.4574038518878053 
+Network 3 F_MEAN: 0.4387197373866895 
+Network 4 F_MEAN: 0.4381876603267415 
+Network 5 F_MEAN: 0.4165926135194704 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_21  22.5%
+2    video_22  37.6%
+3    video_23  60.2%
+4    video_24  26.4%
+5    video_25  63.5%
+---  --------  ------- 
+Average F-score 42.1% 
+Iteration Number: 4 
+Network 0 F_MEAN: 0.4432623799976982 
+Network 1 F_MEAN: 0.42843759329291464 
+Network 2 F_MEAN: 0.45616392186488997 
+Network 3 F_MEAN: 0.43864944097425757 
+Network 4 F_MEAN: 0.4381876603267415 
+Network 5 F_MEAN: 0.4249651596472056 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_21  22.5%
+2    video_22  39.5%
+3    video_23  60.2%
+4    video_24  29.0%
+5    video_25  63.5%
+---  --------  ------- 
+Average F-score 43.0% 
+Iteration Number: 4 
+Network 0 F_MEAN: 0.441804026393425 
+Network 1 F_MEAN: 0.42895568353734 
+Network 2 F_MEAN: 0.45616392186488997 
+Network 3 F_MEAN: 0.43864944097425757 
+Network 4 F_MEAN: 0.4381876603267415 
+Network 5 F_MEAN: 0.41608267302928753 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_21  22.5%
+2    video_22  39.7%
+3    video_23  60.2%
+4    video_24  29.0%
+5    video_25  63.5%
+---  --------  ------- 
+Average F-score 43.0% 
+Iteration Number: 4 
+Network 0 F_MEAN: 0.44552424108306354 
+Network 1 F_MEAN: 0.42895568353734 
+Network 2 F_MEAN: 0.45616392186488997 
+Network 3 F_MEAN: 0.4114387310126624 
+Network 4 F_MEAN: 0.4381876603267415 
+Network 5 F_MEAN: 0.41608267302928753 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_21  22.5%
+2    video_22  39.1%
+3    video_23  60.2%
+4    video_24  29.0%
+5    video_25  63.5%
+---  --------  ------- 
+Average F-score 42.9% 
+Iteration Number: 4 
+Network 0 F_MEAN: 0.4417118134146163 
+Network 1 F_MEAN: 0.4291642292591146 
+Network 2 F_MEAN: 0.45616392186488997 
+Network 3 F_MEAN: 0.41818359904777225 
+Network 4 F_MEAN: 0.4381876603267415 
+Network 5 F_MEAN: 0.41608267302928753 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_21  22.5%
+2    video_22  39.1%
+3    video_23  60.2%
+4    video_24  29.0%
+5    video_25  47.9%
+---  --------  ------- 
+Average F-score 39.7% 
+Iteration Number: 4 
+Network 0 F_MEAN: 0.4014989030451314 
+Network 1 F_MEAN: 0.4325723282914452 
+Network 2 F_MEAN: 0.45616392186488997 
+Network 3 F_MEAN: 0.41818359904777225 
+Network 4 F_MEAN: 0.4381876603267415 
+Network 5 F_MEAN: 0.41852220327583184 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_21  22.5%
+2    video_22  39.1%
+3    video_23  60.2%
+4    video_24  29.0%
+5    video_25  47.9%
+---  --------  ------- 
+Average F-score 39.7% 
+Iteration Number: 4 
+Network 0 F_MEAN: 0.4014989030451314 
+Network 1 F_MEAN: 0.4325723282914452 
+Network 2 F_MEAN: 0.45616392186488997 
+Network 3 F_MEAN: 0.41818359904777225 
+Network 4 F_MEAN: 0.4381876603267415 
+Network 5 F_MEAN: 0.42086413672957884 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_21  22.5%
+2    video_22  42.2%
+3    video_23  60.2%
+4    video_24  29.0%
+5    video_25  47.9%
+---  --------  ------- 
+Average F-score 40.4% 
+Iteration Number: 4 
+Network 0 F_MEAN: 0.4014989030451314 
+Network 1 F_MEAN: 0.4325723282914452 
+Network 2 F_MEAN: 0.45616392186488997 
+Network 3 F_MEAN: 0.43064730093573866 
+Network 4 F_MEAN: 0.4381876603267415 
+Network 5 F_MEAN: 0.42086413672957884 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_21  19.0%
+2    video_22  39.5%
+3    video_23  60.2%
+4    video_24  29.0%
+5    video_25  47.9%
+---  --------  ------- 
+Average F-score 39.1% 
+Iteration Number: 4 
+Network 0 F_MEAN: 0.4014989030451314 
+Network 1 F_MEAN: 0.4243659537770954 
+Network 2 F_MEAN: 0.45594803968987013 
+Network 3 F_MEAN: 0.4306648555409513 
+Network 4 F_MEAN: 0.4381876603267415 
+Network 5 F_MEAN: 0.42086413672957884 
+==> Test 
+---  --------  -------
+No.  Video     F-score
+1    video_21  19.8%
+2    video_22  39.5%
+3    video_23  60.2%
+4    video_24  29.0%
+5    video_25  47.9%
+---  --------  ------- 
+Average F-score 39.3% 
+Iteration Number: 4 
+Network 0 F_MEAN: 0.4035374997899609 
+Network 1 F_MEAN: 0.4243659537770954 
+Network 2 F_MEAN: 0.45594803968987013 
+Network 3 F_MEAN: 0.4306648555409513 
+Network 4 F_MEAN: 0.4381876603267415 
+Network 5 F_MEAN: 0.40428885404334947 
+==> Test 

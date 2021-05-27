@@ -23,6 +23,7 @@ from rewards import compute_reward
 from rewards import *
 import vsum_tools
 from adversary import *
+from distribution_learner import *
 
 
 ntokens = 64 # the size of vocabulary
@@ -40,11 +41,13 @@ parser.add_argument('-s', '--split', type=str, required=True, help="path to spli
 parser.add_argument('--split-id', type=int, default=0, help="split index (default: 0)")
 parser.add_argument('-m', '--metric', type=str, required=True, choices=['tvsum', 'summe'],
                     help="evaluation metric ['tvsum', 'summe']")
+
 # Model options
 parser.add_argument('--input-dim', type=int, default=1024, help="input dimension (default: 1024)")
 parser.add_argument('--hidden-dim', type=int, default=256, help="hidden unit dimension of DSN (default: 256)")
 parser.add_argument('--num-layers', type=int, default=1, help="number of RNN layers (default: 1)")
 parser.add_argument('--rnn-cell', type=str, default='lstm', help="RNN cell type (default: lstm)")
+parser.add_argument('--num_networks', type=int, default='3', help="Number of networks in Ensemble")
 # Optimization options
 parser.add_argument('--lr', type=float, default=1e-05, help="learning rate (default: 1e-05)")
 parser.add_argument('--weight-decay', type=float, default=1e-05, help="weight decay rate (default: 1e-05)")
@@ -166,12 +169,13 @@ def main():
 
 
     print("Initialize dataset {}".format(args.dataset))
+    dataset = h5py.File(args.dataset, 'r')
 
-    for i in range(0,5):
-        dataset = h5py.File(args.dataset, 'r')
-        train_dataset= h5py.File("combined-all.h5","r")
-        keys= list(train_dataset.keys())
-        keys.sort(key=cmp_key)
+    train_dataset= h5py.File("combined-all.h5","r")
+    keys= list(train_dataset.keys())
+    keys.sort(key=cmp_key)
+
+    for iteration_num in range(0,5):
         # dataset = h5py.File(args.dataset, 'r')
         # train_dataset= h5py.File("combined-all.h5","r")
         reward_dict={}
@@ -182,14 +186,14 @@ def main():
         assert args.split_id < len(splits), "split_id (got {}) exceeds {}".format(args.split_id, len(splits))
         split = splits[args.split_id]
         # train_keys = split['train_keys']
-        if i ==0:
+        if iteration_num ==0:
             train_keys= keys[5:-1]
             train_keys.append(keys[-1])
             test_keys= keys[0:5]
         else:
-            train_keys=keys[0:(i*5)]+keys[((i+1)*5):-1]
+            train_keys=keys[0:(iteration_num*5)]+keys[((iteration_num+1)*5):-1]
             train_keys.append(keys[-1])
-            test_keys= keys[(i*5):((i+1)*5)]
+            test_keys= keys[(iteration_num*5):((iteration_num+1)*5)]
         shuffle(train_keys)
         # print(test_keys)
         # train_keys= list(train_dataset.keys())
@@ -197,15 +201,24 @@ def main():
         print("# total videos {}. # train videos {}. # test videos {}".format(num_videos, len(train_keys), len(test_keys)))
 
         print("Initialize model")
-        model = DSN(in_dim=args.input_dim, hid_dim=args.hidden_dim, num_layers=args.num_layers, cell=args.rnn_cell)
-        adversary= make_adversary(1518, device)
+        # model = DSN(in_dim=args.input_dim, hid_dim=args.hidden_dim, num_layers=args.num_layers, cell=args.rnn_cell)
+        # num_networks=3
+        num_networks=args.num_networks
+        print("Number of networks {}".format(str(num_networks)))
+        model= ensemble_DSN(in_dim=args.input_dim, hid_dim=args.hidden_dim, num_layers=args.num_layers, cell=args.rnn_cell, num_networks=args.num_networks)
+        print(model)
+        # adversary= make_adversary(1518, device)
         # my-change
         # model = TransformerModel(ntokens, emsize, nhead, nhid, nlayers, dropout=dropout)
-        print("Model size: {:.5f}M".format(sum(p.numel() for p in model.parameters())/1000000.0))
+        # print("Model size: {:.5f}M".format(sum(p.numel() for p in model.parameters())/1000000.0))
+        optimizers=[]
+        schedulers=[]
+        for i in range(num_networks):
 
-        optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.weight_decay)
+            optimizers.append(torch.optim.Adam(model.arr[i].parameters(), lr=args.lr, weight_decay=args.weight_decay))
         if args.stepsize > 0:
-            scheduler = lr_scheduler.StepLR(optimizer, step_size=args.stepsize, gamma=args.gamma)
+            for i in range(num_networks):
+                schedulers.append( lr_scheduler.StepLR(optimizers[i], step_size=args.stepsize, gamma=args.gamma))
 
         if args.resume:
             print("Loading checkpoint from '{}'".format(args.resume))
@@ -218,14 +231,13 @@ def main():
             # model = nn.DataParallel(model).cuda()
             S_D= S_D.to(device)
             model=model.to(device)
-            adversary= adversary.to(device)
 
         if args.evaluate:
             print("Evaluate only")
             evaluate(model, dataset, test_keys, use_gpu)
             return
 
-        print("==> Start training")
+        print("==> Start training "+str(iteration_num))
         start_time = time.time()
         model.train()
         baselines = {key: 0. for key in train_keys} # baseline rewards for videos
@@ -239,103 +251,114 @@ def main():
         save_seq=None
         count=0
         max_mean=0
+
         # for epoch in range(start_epoch, args.max_epoch):
+        idxs = np.arange(len(train_keys))
+        np.random.shuffle(idxs) # shuffle indices
+        print((len(idxs)/num_networks))
+        # split_idxs=np.zeros((num_networks,int(len(idxs)/num_networks)))
+        split_idxs=[]
+        for x in range(num_networks):
+            if x ==num_networks-1:
+                in_arr=list(idxs[x*int(len(idxs)/num_networks):-1])
+                in_arr.append(idxs[-1])
+                split_idxs.append(in_arr)
+            else:
+                in_arr=list(idxs[x*int(len(idxs)/num_networks):(x+1)*int(len(idxs)/num_networks)])
+                split_idxs.append(in_arr)
+        classifier= make_classifier(num_networks)
+        classifier= classifier.to(device)
+        keys_map={}
+        for t in range(len(split_idxs)):
+            for z in split_idxs[t]:
+                keys_map[train_keys[z]]=t
+
+        classifier= learn_distribution(classifier,train_keys,train_dataset,keys_map,args)
         for epoch in range(start_epoch, 60):
+            for i in range(num_networks):
+                np.random.shuffle(split_idxs[i])
 
-            idxs = np.arange(len(train_keys))
-            np.random.shuffle(idxs) # shuffle indices
+            for network in range(num_networks):
+                indexes = split_idxs[network]
+                for idx in indexes:
+                    key=train_keys[idx]
+                    # key = train_keys[idx]
+
+                    # seq = dataset[key]['features'][...] # sequence of features, (seq_len, dim)
+
+                    seq = train_dataset[key]['features'][...] # sequence of features, (seq_len, dim)
+
+                    seq = torch.from_numpy(seq).unsqueeze(0) # input shape (1, seq_len, dim)
+
+                    if use_gpu: seq = seq.cuda()
+                    probs = model(seq, network) # output shape (1, seq_len, 1)
 
 
-            for idx in idxs:
-                key = train_keys[idx]
-                # seq = dataset[key]['features'][...] # sequence of features, (seq_len, dim)
+                    cost = args.beta * (probs.mean() - 0.5)**2 # minimize summary length penalty term [Eq.11]
+                    m = Bernoulli(probs)
+                    epis_rewards = []
+                    for _ in range(args.num_episode):
+                        actions = m.sample()
+                        log_probs = m.log_prob(actions)
 
-                seq = train_dataset[key]['features'][...] # sequence of features, (seq_len, dim)
+                        if count==0:
 
-                seq = torch.from_numpy(seq).unsqueeze(0) # input shape (1, seq_len, dim)
+                            pick_idxs = actions.squeeze().nonzero().squeeze()
+                            save_seq=seq[:,pick_idxs,:]
+                            count=1
 
-                if use_gpu: seq = seq.cuda()
-                probs = model(seq) # output shape (1, seq_len, 1)
+                        reward, nll = compute_reward(seq, actions,S_D, loss=loss, label=label, activation=activation ,use_gpu=use_gpu, device=device, save_seq=save_seq)
 
+                        expected_reward = log_probs.mean() * (reward - baselines[key])
+                        try:
+                            r= reward_dict[key]
+                            if r<expected_reward:
+                                reward_dict[key]=expected_reward.detach()
+                        except Exception as e:
+                            reward_dict[key]=expected_reward
+                        reward_dict[key]= expected_reward.detach()
+                        cost -= expected_reward # minimize negative expected reward
+                        epis_rewards.append(reward.item())
+                        epis_reward_nll.append(nll.item())
 
-                cost = args.beta * (probs.mean() - 0.5)**2 # minimize summary length penalty term [Eq.11]
-                m = Bernoulli(probs)
-                epis_rewards = []
-                for _ in range(args.num_episode):
-                    actions = m.sample()
-                    log_probs = m.log_prob(actions)
+                    optimizers[network].zero_grad()
+                    cost.backward()
+                    torch.nn.utils.clip_grad_norm_(model.arr[network].parameters(), 5.0)
+                    optimizers[network].step()
+                    baselines[key] = 0.9 * baselines[key] + 0.1 * np.mean(epis_rewards) # update baseline reward via moving average
+                    reward_writers[key].append(np.mean(epis_rewards))
+                    reward_writers_nll[key].append(np.mean(epis_reward_nll))
 
-                    if count==0:
+                    # mean=get_f_mean(model, dataset, test_keys, use_gpu, i=i)
+                    # if mean > max_mean:
+                        # max_mean=mean
+            if (epoch)%5==0:
+                evaluate_save(model, dataset, test_keys, use_gpu, i=iteration_num, num_networks=args.num_networks, classifier=classifier)
+                for n in range(args.num_networks):
+                    f_mean=evaluate_network_save(model, dataset, test_keys, use_gpu, i=iteration_num, num_networks=args.num_networks, test_network=n)
+                    print_save("Network {} F_MEAN: {}".format(str(n),str(f_mean)))
 
-                        pick_idxs = actions.squeeze().nonzero().squeeze()
-                        save_seq=seq[:,pick_idxs,:]
-                        count=1
-
-                    reward, nll = compute_reward(seq, actions,S_D, loss=loss, label=label, activation=activation ,use_gpu=use_gpu, device=device, save_seq=save_seq)
-
-                    expected_reward = log_probs.mean() * (reward - baselines[key])
-                    try:
-                        r= reward_dict[key]
-                        if r<expected_reward:
-                            reward_dict[key]=expected_reward.detach()
-                    except Exception as e:
-                        reward_dict[key]=expected_reward
-                    reward_dict[key]= expected_reward.detach()
-                    cost -= expected_reward # minimize negative expected reward
-                    epis_rewards.append(reward.item())
-                    epis_reward_nll.append(nll.item())
-
-                optimizer.zero_grad()
-                cost.backward()
-                torch.nn.utils.clip_grad_norm_(model.parameters(), 5.0)
-                optimizer.step()
-                baselines[key] = 0.9 * baselines[key] + 0.1 * np.mean(epis_rewards) # update baseline reward via moving average
-                reward_writers[key].append(np.mean(epis_rewards))
-                reward_writers_nll[key].append(np.mean(epis_reward_nll))
-
-                # mean=get_f_mean(model, dataset, test_keys, use_gpu, i=i)
-                # if mean > max_mean:
-                    # max_mean=mean
-            if (epoch+1)%30==0:
-                evaluate_save(model, dataset, test_keys, use_gpu, i=i)
             epoch_reward = np.mean([reward_writers[key][epoch] for key in train_keys])
             epoch_nll_reward= np.mean([reward_writers_nll[key][epoch] for key in train_keys])
             print("epoch {}/{}\t reward {}\t nll_reward {}\t".format(epoch+1, args.max_epoch, epoch_reward, epoch_nll_reward))
 
+
         write_json(reward_writers, osp.join(args.save_dir, 'rewards.json'))
         # evaluate(model, dataset, test_keys, use_gpu)
-        evaluate_save(model, dataset, test_keys, use_gpu, i=i)
-
-        model, adversary,forget= manipulate(model, adversary,test_keys= test_keys,test_dataset=dataset,
-                                            train_dataset=train_dataset, train_keys=train_keys,
-                                            optimizer= optimizer, scheduler=scheduler,
-                                            device= device, args=args, together=False,
-                                            reward_dict=reward_dict,s_d=S_D,arguments=args)
-        mean=get_f_mean(model, dataset, test_keys, use_gpu, i=i)
-        if mean > max_mean:
-            max_mean=mean
-        evaluate_save_adversary(model, adversary, dataset,test_keys,use_gpu,forget=forget ,i=i, together= False)
-        model, adversary, forget= manipulate(model, adversary,test_keys= test_keys, test_dataset=dataset,
-                                            train_dataset=train_dataset, train_keys=train_keys, optimizer= optimizer,
-                                            scheduler=scheduler, device= device, args=args,together=True,
-                                            reward_dict=reward_dict,s_d=S_D,arguments=args)
-        mean=get_f_mean(model, dataset, test_keys, use_gpu, i=i)
-        if mean > max_mean:
-            max_mean=mean
-        evaluate_save_adversary(model, adversary, dataset,test_keys,use_gpu,forget=forget, i=i, together= True)
+        evaluate_save(model, dataset, test_keys, use_gpu, i=iteration_num, num_networks=args.num_networks,classifier=classifier)
+        for n in range(args.num_networks):
+            f_mean=evaluate_network_save(model, dataset, test_keys, use_gpu, i=iteration_num, num_networks=args.num_networks, test_network=n)
+            print_save("Network {} F_MEAN: {}".format(str(n),str(f_mean)))
         elapsed = round(time.time() - start_time)
         elapsed = str(datetime.timedelta(seconds=elapsed))
         print("Finished. Total elapsed time (h:m:s): {}".format(elapsed))
 
         # model_state_dict = model.module.state_dict() if use_gpu else model.state_dict()
-        model_state_dict = model.state_dict() if use_gpu else model.state_dict()
-        model_save_path = osp.join(args.save_dir, 'model_epoch_'+str(i)+"_" + str(args.max_epoch) + '.pth.tar')
-        save_checkpoint(model_state_dict, model_save_path)
-        print("Model saved to {}".format(model_save_path))
-        print_save("\n Maximum_mean: "+str(max_mean))
-        print_save("="*30)
-        print_save("\n")
-        dataset.close()
+        # model_state_dict = model.state_dict() if use_gpu else model.state_dict()
+        # model_save_path = osp.join(args.save_dir, 'model_epoch_'+str(i)+"_" + str(args.max_epoch) + '.pth.tar')
+        # save_checkpoint(model_state_dict, model_save_path)
+        # print("Model saved to {}".format(model_save_path))
+    dataset.close()
 
 def evaluate(model, dataset, test_keys, use_gpu):
     print("==> Test")
@@ -433,10 +456,13 @@ def get_f_mean(model, dataset, test_keys, use_gpu, i=1000):
     model.train()
     return mean_fm
 
-def evaluate_save(model, dataset, test_keys, use_gpu, i=1000):
-    print_save("==> Test")
-    print(test_keys)
-    print(dataset.keys())
+def evaluate_network_save(model, dataset, test_keys, use_gpu, i=1000, num_networks=3, test_network=0, classifier=None):
+    import math
+    if num_networks%2==0:
+        majority_vote= (num_networks/2)+1
+    else:
+        majority_vote=math.ceil(num_networks/2)
+    # majority_vote=2
     with torch.no_grad():
         model.eval()
         fms = []
@@ -451,7 +477,7 @@ def evaluate_save(model, dataset, test_keys, use_gpu, i=1000):
             seq = dataset[key]['features'][...]
             seq = torch.from_numpy(seq).unsqueeze(0)
             if use_gpu: seq = seq.cuda()
-            probs = model(seq)
+            probs = model(seq,0, eval=True, eval_network=test_network)
             probs = probs.data.cpu().squeeze().numpy()
 
             cps = dataset[key]['change_points'][...]
@@ -473,30 +499,26 @@ def evaluate_save(model, dataset, test_keys, use_gpu, i=1000):
                 h5_res.create_dataset(key + '/gtscore', data=dataset[key]['gtscore'][...])
                 h5_res.create_dataset(key + '/fm', data=fm)
 
-    if args.verbose:
-        print_save(tabulate(table))
-
     if args.save_results: h5_res.close()
 
     mean_fm = np.mean(fms)
-    print_save("Average F-score {:.1%}".format(mean_fm))
-    print_save("Iteration Number: "+str(i))
     model.train()
     return mean_fm
 
-def evaluate_save_adversary(model, adversary, dataset, test_keys, use_gpu,forget=None, i=1000, together= False):
-    print("jhj")
 
-    if together:
-        print_save("==> Test Adversary and Model Together")
+def evaluate_save(model, dataset, test_keys, use_gpu, i=1000, num_networks=3, classifier= None):
+    print_save("==> Test")
+    if num_networks%2==0:
+        majority_vote= (num_networks/2)+1
     else:
-        print_save("==> Test Adversary")
+        majority_vote=math.ceil(num_networks/2)
+    # majority_vote=2
+
     print(test_keys)
     print(dataset.keys())
+    list_priority_networks=[]
     with torch.no_grad():
         model.eval()
-        adversary.eval()
-        forget.eval()
         fms = []
         eval_metric = 'avg' if args.metric == 'tvsum' else 'max'
 
@@ -506,28 +528,40 @@ def evaluate_save_adversary(model, adversary, dataset, test_keys, use_gpu,forget
             h5_res = h5py.File(osp.join(args.save_dir, 'result.h5'), 'w')
 
         for key_idx, key in enumerate(test_keys):
+
             seq = dataset[key]['features'][...]
             seq = torch.from_numpy(seq).unsqueeze(0)
-            if use_gpu:
-                seq = seq.cuda()
-                device= torch.device("cuda")
-            else:
-                device= torch.device("cpu")
-            length= seq.shape[1]
-            # seq_updated= complete_video(seq,device=device)
-            noise= adversary(seq)
-            gen_labels=forget(seq)
-            seq_manipulated= seq+(noise*Bernoulli(gen_labels).sample())
-            probs = model(seq_manipulated) # output shape (1, seq_len, 1) o
-            probs = probs.data.cpu().squeeze().numpy()
 
-            cps = dataset[key]['change_points'][...]
-            num_frames = dataset[key]['n_frames'][()]
-            nfps = dataset[key]['n_frame_per_seg'][...].tolist()
-            positions = dataset[key]['picks'][...]
-            user_summary = dataset[key]['user_summary'][...]
+            if use_gpu: seq = seq.cuda()
+            if classifier is not None:
+                print(nn.functional.sigmoid(classifier(seq)).squeeze(0))
+                priority_network=torch.argmax(nn.functional.sigmoid(classifier(seq)).squeeze(0))
+                list_priority_networks.append(priority_network.detach().cpu().numpy())
+            machine_summaries=[]
+            for n in range(num_networks):
+                probs = model(seq,n, eval=True, eval_network=n)
+                probs = probs.data.cpu().squeeze().numpy()
 
-            machine_summary = vsum_tools.generate_summary(probs, cps, num_frames, nfps, positions)
+                cps = dataset[key]['change_points'][...]
+                num_frames = dataset[key]['n_frames'][()]
+                nfps = dataset[key]['n_frame_per_seg'][...].tolist()
+                positions = dataset[key]['picks'][...]
+                user_summary = dataset[key]['user_summary'][...]
+                if n==0:
+
+                    machine_summaries=vsum_tools.generate_summary(probs, cps, num_frames, nfps, positions)
+
+
+                else:
+                    machine_summaries=machine_summaries+vsum_tools.generate_summary(probs, cps, num_frames, nfps, positions)
+                if priority_network is not None and priority_network==n:
+                    machine_summaries=machine_summaries+1
+            machine_summaries[machine_summaries<majority_vote]=0
+            machine_summaries[machine_summaries>=majority_vote]=1
+
+            machine_summary=machine_summaries
+
+
             fm, _, _ = vsum_tools.evaluate_summary(machine_summary, user_summary, eval_metric)
             fms.append(fm)
 
@@ -542,6 +576,7 @@ def evaluate_save_adversary(model, adversary, dataset, test_keys, use_gpu,forget
 
     if args.verbose:
         print_save(tabulate(table))
+        print_save(list_priority_networks)
 
     if args.save_results: h5_res.close()
 
@@ -549,9 +584,6 @@ def evaluate_save_adversary(model, adversary, dataset, test_keys, use_gpu,forget
     print_save("Average F-score {:.1%}".format(mean_fm))
     print_save("Iteration Number: "+str(i))
     model.train()
-    adversary.train()
-    forget.train()
-    print("jhjh")
     return mean_fm
 
 if __name__ == '__main__':

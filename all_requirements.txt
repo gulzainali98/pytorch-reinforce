@@ -3,9 +3,8 @@ beautifulsoup4==4.9.1
 certifi==2020.6.20
 cffi==1.14.0
 chardet==3.0.4
-conda==4.8.3
-conda-build==3.18.11
-conda-package-handling==1.7.0
+conda
+conda-build
 cryptography==2.9.2
 decorator==4.4.2
 filelock==3.0.12
@@ -18,9 +17,8 @@ jedi==0.17.1
 Jinja2==2.11.2
 libarchive-c==2.9
 MarkupSafe==1.1.1
-mkl-fft==1.1.0
-mkl-random==1.1.1
-mkl-service==2.3.0
+mkl-fft
+mkl-random
 numpy==1.18.5
 olefile==0.46
 parso==0.7.0
