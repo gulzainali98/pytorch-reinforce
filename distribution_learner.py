@@ -205,7 +205,7 @@ def learn_distribution(model_holder, train_keys, train_dataset, keys_map, args,u
     model.train()
     loss= nn.CrossEntropyLoss()
 
-    for epoch in range(60):
+    for epoch in range(1):
         epoch_cost=0
         for key in train_keys:
             seq = train_dataset[key]['features'][...] # sequence of features, (seq_len, dim)

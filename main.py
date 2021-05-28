@@ -534,7 +534,7 @@ def evaluate_save(model, dataset, test_keys, use_gpu, i=1000, num_networks=3, cl
 
             if use_gpu: seq = seq.cuda()
             if classifier is not None:
-                print(nn.functional.sigmoid(classifier(seq)).squeeze(0))
+                print(nn.functional.softmax(classifier(seq)).squeeze(0))
                 priority_network=torch.argmax(nn.functional.sigmoid(classifier(seq)).squeeze(0))
                 list_priority_networks.append(priority_network.detach().cpu().numpy())
             machine_summaries=[]
@@ -547,15 +547,16 @@ def evaluate_save(model, dataset, test_keys, use_gpu, i=1000, num_networks=3, cl
                 nfps = dataset[key]['n_frame_per_seg'][...].tolist()
                 positions = dataset[key]['picks'][...]
                 user_summary = dataset[key]['user_summary'][...]
+                inter_summary=vsum_tools.generate_summary(probs, cps, num_frames, nfps, positions)
                 if n==0:
 
-                    machine_summaries=vsum_tools.generate_summary(probs, cps, num_frames, nfps, positions)
+                    machine_summaries=inter_summary
 
 
                 else:
-                    machine_summaries=machine_summaries+vsum_tools.generate_summary(probs, cps, num_frames, nfps, positions)
+                    machine_summaries=machine_summaries+inter_summary
                 if priority_network is not None and priority_network==n:
-                    machine_summaries=machine_summaries+1
+                    machine_summaries=machine_summaries+inter_summary
             machine_summaries[machine_summaries<majority_vote]=0
             machine_summaries[machine_summaries>=majority_vote]=1
 
